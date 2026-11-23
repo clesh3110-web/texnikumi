@@ -1,0 +1,240 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Guliston 1-son texnikumi — Rasmiy Veb-Sayti{% endblock %}
+
+{% block content %}
+<!-- YUQORI NAVIGATSIYA (NAVBAR) -->
+<nav class="navbar navbar-expand-lg navbar-dark bg-primary-custom sticky-top shadow-sm py-3">
+    <div class="container">
+        <a class="navbar-brand d-flex align-items-center gap-2 fw-bold" href="{% url 'core:home' %}">
+            <div class="rounded-circle bg-white text-primary p-2 d-flex align-items-center justify-content-center" style="width: 40px; height: 40px;">
+                <i class="bi bi-mortarboard-fill fs-5"></i>
+            </div>
+            <div>
+                <span class="fs-5 d-block line-height-1">GULISTON 1-SON TEXNIKUM</span>
+                <small class="text-white-50 fs-6 fw-normal">Professional Ta'lim Muassasasi</small>
+            </div>
+        </a>
+
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#publicNav">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+
+        <div class="collapse navbar-collapse" id="publicNav">
+            <ul class="navbar-nav mx-auto mb-2 mb-lg-0 fw-semibold">
+                <li class="nav-item"><a class="nav-link active" href="{% url 'core:home' %}">Bosh sahifa</a></li>
+                <li class="nav-item"><a class="nav-link" href="{% url 'core:about' %}">Biz haqimizda</a></li>
+                <li class="nav-item"><a class="nav-link" href="{% url 'core:leadership' %}">Rahbariyat</a></li>
+                <li class="nav-item"><a class="nav-link" href="{% url 'core:departments' %}">Ta'lim yo'nalishlari</a></li>
+                <li class="nav-item"><a class="nav-link" href="{% url 'core:news_list' %}">Yangiliklar</a></li>
+                <li class="nav-item"><a class="nav-link" href="{% url 'core:contact' %}">Aloqa</a></li>
+            </ul>
+
+            <div class="d-flex gap-2">
+                {% if user.is_authenticated %}
+                    <a href="{% url 'accounts:dashboard_redirect' %}" class="btn btn-primary-custom px-4">
+                        <i class="bi bi-speedometer2 me-1"></i> Kabinetga o‘tish
+                    </a>
+                {% else %}
+                    <a href="{% url 'accounts:login' %}" class="btn btn-primary-custom px-4 shadow-sm">
+                        <i class="bi bi-box-arrow-in-right me-1"></i> Platformaga kirish
+                    </a>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</nav>
+
+<!-- HERO QISMI (BOSH SAHIFA BANNERI) -->
+<section class="py-5 text-white" style="background: linear-gradient(135deg, #0d2240 0%, #1e3a8a 70%, #0369a1 100%);">
+    <div class="container py-4">
+        <div class="row align-items-center g-5">
+            <div class="col-lg-7">
+                <span class="badge bg-info text-dark px-3 py-2 rounded-pill fw-bold mb-3">
+                    <i class="bi bi-stars me-1"></i> Zamonaviy Raqamli Ta'lim
+                </span>
+                <h1 class="display-4 fw-bold lh-sm mb-3">
+                    Kelajak kasblarini <br><span class="text-info">Guliston 1-son texnikumi</span> bilan birga egallang!
+                </h1>
+                <p class="lead text-white-50 mb-4">
+                    Axborot texnologiyalari, dasturiy injiniring va buxgalteriya sohasida xalqaro standartlarga mos, amaliyotga yo‘naltirilgan zamonaviy ta'lim maskani.
+                </p>
+                <div class="d-flex flex-wrap gap-3">
+                    <a href="{% url 'core:departments' %}" class="btn btn-primary-custom btn-lg px-4 shadow">
+                        <i class="bi bi-book-half me-1"></i> Yo‘nalishlar bilan tanishish
+                    </a>
+                    <a href="{% url 'core:about' %}" class="btn btn-outline-light btn-lg px-4">
+                        <i class="bi bi-info-circle me-1"></i> Biz haqimizda
+                    </a>
+                </div>
+            </div>
+            <div class="col-lg-5 text-center">
+                <div class="p-4 rounded-4 shadow-lg" style="background: rgba(255, 255, 255, 0.08); backdrop-filter: blur(10px); border: 1px solid rgba(255, 255, 255, 0.15);">
+                    <i class="bi bi-building-check text-info" style="font-size: 5rem;"></i>
+                    <h4 class="fw-bold mt-3">Smart Education Platform</h4>
+                    <p class="text-white-50 small mb-4">Elektron jurnal, davomat, dars jadvali va tahliliy boshqaruv tizimi</p>
+                    <a href="{% url 'accounts:login' %}" class="btn btn-light w-100 fw-bold py-2 text-primary">
+                        <i class="bi bi-person-badge-fill me-1"></i> Tizimga kirish
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- STATISTIKA HISOBLAGICHLARI -->
+<section class="py-5 bg-white border-bottom">
+    <div class="container">
+        <div class="row g-4 text-center">
+            <div class="col-6 col-md-3">
+                <div class="p-3">
+                    <h2 class="display-5 fw-bold text-primary mb-1">{{ total_students }}+</h2>
+                    <p class="text-muted fw-semibold mb-0">Faol O‘quvchilar</p>
+                </div>
+            </div>
+            <div class="col-6 col-md-3">
+                <div class="p-3">
+                    <h2 class="display-5 fw-bold text-primary mb-1">{{ total_teachers }}+</h2>
+                    <p class="text-muted fw-semibold mb-0">Tajribali O‘qituvchilar</p>
+                </div>
+            </div>
+            <div class="col-6 col-md-3">
+                <div class="p-3">
+                    <h2 class="display-5 fw-bold text-primary mb-1">{{ total_groups }}+</h2>
+                    <p class="text-muted fw-semibold mb-0">Akademik Guruhlar</p>
+                </div>
+            </div>
+            <div class="col-6 col-md-3">
+                <div class="p-3">
+                    <h2 class="display-5 fw-bold text-primary mb-1">{{ total_subjects }}+</h2>
+                    <p class="text-muted fw-semibold mb-0">Mutaxassislik Fanlari</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- TA'LIM YO'NALISHLARI -->
+<section class="py-5 bg-light">
+    <div class="container py-3">
+        <div class="text-center mb-5">
+            <span class="badge bg-primary-subtle text-primary px-3 py-2 rounded-pill fw-semibold">Mutaxassisliklar</span>
+            <h2 class="fw-bold mt-2">Bizning Ta'lim Yo‘nalishlari</h2>
+            <p class="text-muted">Texnikumda zamonaviy mehnat bozorida eng talab yuqori bo‘lgan sohalar bo‘yicha kadrlar tayyorlanadi.</p>
+        </div>
+
+        <div class="row g-4">
+            <div class="col-md-4">
+                <div class="card h-100 border-0 shadow-sm rounded-4 p-4 text-center">
+                    <div class="mx-auto rounded-circle bg-primary-subtle text-primary p-3 mb-3" style="width: 70px; height: 70px; display: flex; align-items: center; justify-content: center;">
+                        <i class="bi bi-code-slash fs-2"></i>
+                    </div>
+                    <h5 class="fw-bold mb-2">Dasturiy injiniring</h5>
+                    <p class="text-muted small">Python, JavaScript, Django, PostgreSQL va zamonaviy veb-ilovalarni yaratish ko‘nikmalari.</p>
+                    <span class="badge bg-light text-secondary border mt-auto py-2">Davomiyligi: 2 yil</span>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card h-100 border-0 shadow-sm rounded-4 p-4 text-center">
+                    <div class="mx-auto rounded-circle bg-info-subtle text-info p-3 mb-3" style="width: 70px; height: 70px; display: flex; align-items: center; justify-content: center;">
+                        <i class="bi bi-hdd-network fs-2"></i>
+                    </div>
+                    <h5 class="fw-bold mb-2">Axborot texnologiyalari</h5>
+                    <p class="text-muted small">Tarmoq ma‘murlash, kiberxavfsizlik, Linux serverlari va kompyuter tizimlariga texnik xizmat.</p>
+                    <span class="badge bg-light text-secondary border mt-auto py-2">Davomiyligi: 2 yil</span>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card h-100 border-0 shadow-sm rounded-4 p-4 text-center">
+                    <div class="mx-auto rounded-circle bg-success-subtle text-success p-3 mb-3" style="width: 70px; height: 70px; display: flex; align-items: center; justify-content: center;">
+                        <i class="bi bi-calculator fs-2"></i>
+                    </div>
+                    <h5 class="fw-bold mb-2">Buxgalteriya hisobi</h5>
+                    <p class="text-muted small">Korxona buxgalteriyasi, 1C dasturi, soliq qonunchiligi va moliyaviy tahlil asoslari.</p>
+                    <span class="badge bg-light text-secondary border mt-auto py-2">Davomiyligi: 2 yil</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- SO'NGGI YANGILIKLAR VA E'LONLAR -->
+<section class="py-5 bg-white">
+    <div class="container py-3">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <div>
+                <span class="badge bg-primary-subtle text-primary px-3 py-2 rounded-pill fw-semibold">Yangiliklar markazi</span>
+                <h3 class="fw-bold mt-2 mb-0">So‘nggi yangiliklar va e‘lonlar</h3>
+            </div>
+            <a href="{% url 'core:news_list' %}" class="btn btn-outline-primary btn-sm px-3">
+                Barchasini ko‘rish <i class="bi bi-arrow-right ms-1"></i>
+            </a>
+        </div>
+
+        <div class="row g-4">
+            {% for item in latest_news %}
+            <div class="col-md-4">
+                <div class="card h-100 border-0 shadow-sm rounded-4 overflow-hidden">
+                    <div class="bg-primary-subtle d-flex align-items-center justify-content-center" style="height: 180px;">
+                        <i class="bi bi-newspaper fs-1 text-primary opacity-50"></i>
+                    </div>
+                    <div class="card-body p-4 d-flex flex-column">
+                        <small class="text-muted mb-2">
+                            <i class="bi bi-calendar3 me-1"></i> {{ item.published_at|date:"d M, Y" }}
+                            <span class="ms-3"><i class="bi bi-eye me-1"></i> {{ item.views_count }}</span>
+                        </small>
+                        <h5 class="fw-bold mb-2">{{ item.title }}</h5>
+                        <p class="text-muted small mb-4">{{ item.summary|truncatewords:20 }}</p>
+                        <a href="{% url 'core:news_detail' item.pk %}" class="btn btn-link text-primary p-0 fw-semibold mt-auto text-decoration-none">
+                            Batafsil o‘qish <i class="bi bi-arrow-right"></i>
+                        </a>
+                    </div>
+                </div>
+            </div>
+            {% empty %}
+            <div class="col-12 text-center text-muted py-4">Yangiliklar tez orada chop etiladi.</div>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+
+<!-- FOOTER -->
+<footer class="bg-primary-custom text-white pt-5 pb-3">
+    <div class="container">
+        <div class="row g-4">
+            <div class="col-lg-4">
+                <h5 class="fw-bold mb-3"><i class="bi bi-mortarboard-fill me-2 text-info"></i> GULISTON 1-SON TEXNIKUM</h5>
+                <p class="text-white-50 small">
+                    Professional, zamonaviy va raqamlashtirilgan ta'lim boshqaruv platformasi.
+                </p>
+                <div class="small text-white-50">
+                    <p class="mb-1"><i class="bi bi-geo-alt me-2 text-info"></i> Sirdaryo viloyati, Guliston shahri, Sayxun ko‘chasi, 12-uy</p>
+                    <p class="mb-1"><i class="bi bi-telephone me-2 text-info"></i> +998 (67) 225-10-01</p>
+                    <p class="mb-0"><i class="bi bi-envelope me-2 text-info"></i> info@guliston-texnikum.uz</p>
+                </div>
+            </div>
+            <div class="col-lg-4">
+                <h6 class="fw-bold mb-3 text-info">Foydali havolalar</h6>
+                <ul class="list-unstyled small text-white-50 d-flex flex-column gap-2">
+                    <li><a href="{% url 'core:about' %}" class="text-white-50 text-decoration-none hover-white">Texnikum nizomi</a></li>
+                    <li><a href="{% url 'core:leadership' %}" class="text-white-50 text-decoration-none hover-white">Rahbariyat tarkibi</a></li>
+                    <li><a href="{% url 'core:departments' %}" class="text-white-50 text-decoration-none hover-white">Ta'lim yo‘nalishlari</a></li>
+                    <li><a href="{% url 'accounts:login' %}" class="text-white-50 text-decoration-none hover-white">Elektron jurnal va kabinet</a></li>
+                </ul>
+            </div>
+            <div class="col-lg-4">
+                <h6 class="fw-bold mb-3 text-info">Qabul va murojaatlar</h6>
+                <p class="small text-white-50">Savollaringiz bormi? Texnikum ma'muriyati bilan bevosita bog‘laning.</p>
+                <a href="{% url 'core:contact' %}" class="btn btn-outline-info btn-sm px-4">
+                    <i class="bi bi-chat-dots me-1"></i> Murojaat yo‘llash
+                </a>
+            </div>
+        </div>
+        <hr class="border-secondary my-4">
+        <div class="text-center small text-white-50">
+            &copy; 2026 Guliston 1-son texnikumi. Barcha huquqlar himoyalangan.
+        </div>
+    </div>
+</footer>
+{% endblock %}

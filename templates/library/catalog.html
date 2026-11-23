@@ -1,0 +1,92 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Elektron Kutubxona — Guliston 1-son texnikumi{% endblock %}
+
+{% block content %}
+<div class="bg-primary-custom text-white py-4 shadow-sm mb-4">
+    <div class="container d-flex justify-content-between align-items-center flex-wrap gap-2">
+        <div>
+            <span class="badge bg-info text-dark mb-1">Raqamli Axborot-Resurs Markazi</span>
+            <h3 class="fw-bold mb-0"><i class="bi bi-collection-fill me-2 text-info"></i> Elektron Kutubxona</h3>
+        </div>
+        <div class="d-flex gap-2">
+            <a href="{% url 'accounts:dashboard_redirect' %}" class="btn btn-outline-light btn-sm">
+                <i class="bi bi-arrow-left"></i> Panelga qaytish
+            </a>
+        </div>
+    </div>
+</div>
+
+<div class="container py-2">
+    <!-- QIDIRUV VA FAN BO'YICHA FILTR -->
+    <div class="card border-0 shadow-sm rounded-4 p-4 bg-white mb-4">
+        <form method="get" class="row g-3 align-items-center">
+            <div class="col-md-7">
+                <div class="input-group">
+                    <span class="input-group-text bg-light border-end-0"><i class="bi bi-search text-muted"></i></span>
+                    <input type="text" name="q" class="form-control bg-light border-start-0" placeholder="Kitob nomi, muallif yoki ISBN bo‘yicha qidirish..." value="{{ query }}">
+                </div>
+            </div>
+            <div class="col-md-3">
+                <select name="subject" class="form-select bg-light">
+                    <option value="">Barcha fanlar</option>
+                    {% for s in subjects %}
+                        <option value="{{ s.id }}" {% if selected_subject_id == s.id %}selected{% endif %}>{{ s.name }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="col-md-2">
+                <button type="submit" class="btn btn-primary-custom w-100">
+                    <i class="bi bi-funnel-fill me-1"></i> Qidirish
+                </button>
+            </div>
+        </form>
+    </div>
+
+    <!-- KITOBLAR KATALOGI -->
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h5 class="fw-bold text-dark mb-0">Mavjud Adabiyotlar ({{ total_books_count }} ta)</h5>
+    </div>
+
+    <div class="row g-4 mb-5">
+        {% for b in books %}
+        <div class="col-sm-6 col-lg-4 col-xl-3">
+            <div class="card h-100 border-0 shadow-sm rounded-4 overflow-hidden bg-white d-flex flex-column">
+                <div class="bg-primary-subtle d-flex align-items-center justify-content-center position-relative" style="height: 180px;">
+                    {% if b.cover_image %}
+                        <img src="{{ b.cover_image.url }}" alt="{{ b.title }}" style="width: 100%; height: 100%; object-fit: cover;">
+                    {% else %}
+                        <i class="bi bi-book-half text-primary fs-1 opacity-50"></i>
+                    {% endif %}
+                    {% if b.subject %}
+                        <span class="position-absolute top-0 start-0 m-2 badge bg-primary">{{ b.subject.code }}</span>
+                    {% endif %}
+                </div>
+
+                <div class="card-body p-3 d-flex flex-column">
+                    <h6 class="fw-bold text-dark mb-1 lh-sm">{{ b.title }}</h6>
+                    <small class="text-muted d-block mb-2"><i class="bi bi-person me-1"></i> {{ b.author }}</small>
+                    <p class="text-secondary small mb-3 flex-grow-1">{{ b.description|truncatewords:15 }}</p>
+
+                    <div class="d-flex justify-content-between align-items-center small text-muted border-top pt-2 mb-3">
+                        <span><i class="bi bi-eye me-1"></i> {{ b.views_count }}</span>
+                        <span><i class="bi bi-download me-1"></i> {{ b.downloads_count }}</span>
+                        <span>{{ b.published_year|default:"—" }}</span>
+                    </div>
+
+                    <a href="{% url 'library:book_detail' b.id %}" class="btn btn-primary-custom btn-sm w-100 mt-auto">
+                        <i class="bi bi-file-earmark-pdf me-1"></i> Mutolaa qilish
+                    </a>
+                </div>
+            </div>
+        </div>
+        {% empty %}
+        <div class="col-12 text-center text-muted py-5">
+            <i class="bi bi-journal-x fs-1 d-block mb-2 text-secondary opacity-50"></i>
+            Kutubxonada bunday mezon bo‘yicha kitoblar topilmadi.
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}

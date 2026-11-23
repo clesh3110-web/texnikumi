@@ -1,0 +1,44 @@
+{% extends 'base.html' %}
+{% block title %}Biz haqimizda — Guliston 1-son texnikumi{% endblock %}
+
+{% block content %}
+<nav class="navbar navbar-expand-lg navbar-dark bg-primary-custom py-3">
+    <div class="container">
+        <a class="navbar-brand fw-bold" href="{% url 'core:home' %}"><i class="bi bi-arrow-left me-2"></i> Bosh sahifaga qaytish</a>
+    </div>
+</nav>
+
+<div class="container py-5">
+    <div class="row g-5">
+        <div class="col-lg-8">
+            <span class="badge bg-primary-subtle text-primary px-3 py-2 rounded-pill fw-semibold mb-2">Tarix va Missiya</span>
+            <h2 class="fw-bold mb-3">Guliston 1-son texnikumi haqida</h2>
+            <p class="lead text-muted">
+                O‘zbekiston Respublikasi Oliy ta'lim, fan va innovatsiyalar vazirligi tizimidagi yetakchi professional ta'lim muassasalaridan biri.
+            </p>
+            <p>
+                Texnikumimizda zamonaviy ishlab chiqarish va texnologiya sohalari uchun yuqori malakali o‘rta bo‘g‘in mutaxassislari tayyorlanadi. O‘quv jarayoni raqamlashtirilgan ta'lim tizimi (Smart Education System) asosida dual ta'lim tamoyillariga muvofiq olib boriladi.
+            </p>
+            
+            <h4 class="fw-bold mt-4 mb-3">Bizning asosiy yutuqlarimiz:</h4>
+            <ul class="list-group list-group-flush mb-4">
+                <li class="list-group-item bg-transparent px-0"><i class="bi bi-check-circle-fill text-success me-2"></i> 100% kompyuterlashtirilgan laboratoriya xonalari va kovorking maydoni</li>
+                <li class="list-group-item bg-transparent px-0"><i class="bi bi-check-circle-fill text-success me-2"></i> Elektron jurnal, davomat va baholash platformasi</li>
+                <li class="list-group-item bg-transparent px-0"><i class="bi bi-check-circle-fill text-success me-2"></i> Yetakchi IT korxonalari bilan rasmiy hamkorlik va kafolatlangan amaliyot</li>
+            </ul>
+        </div>
+        <div class="col-lg-4">
+            <div class="card border-0 shadow-sm rounded-4 p-4 bg-white">
+                <h5 class="fw-bold mb-3"><i class="bi bi-info-circle text-primary me-2"></i> Qisqacha ma'lumot</h5>
+                <div class="small">
+                    <p class="mb-2"><strong>Muassasa turi:</strong> Davlat professional texnikumi</p>
+                    <p class="mb-2"><strong>Manzil:</strong> Guliston shahri, Sayxun ko‘chasi, 12-uy</p>
+                    <p class="mb-2"><strong>Ta'lim tili:</strong> O‘zbek tili</p>
+                    <p class="mb-2"><strong>Ta'lim shakli:</strong> Kunduzgi, dual ta'lim</p>
+                    <p class="mb-0"><strong>Telefon:</strong> +998 (67) 225-10-01</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

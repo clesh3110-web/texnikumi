@@ -1,0 +1,85 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ message.subject }} — Guliston 1-son texnikumi{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="row justify-content-center">
+        <div class="col-lg-9">
+            <div class="card border-0 shadow-sm rounded-4 mb-4">
+                <div class="card-header bg-white py-3 border-0 d-flex justify-content-between align-items-center">
+                    <div>
+                        <a href="{% url 'messaging:inbox' %}" class="btn btn-sm btn-outline-secondary rounded-pill me-2">
+                            <i class="bi bi-arrow-left"></i>
+                        </a>
+                        <span class="badge bg-primary-subtle text-primary border">Xabar</span>
+                    </div>
+                    <div class="d-flex gap-2">
+                        <a href="{% url 'messaging:compose' %}?reply_to={{ message.id }}" class="btn btn-primary btn-sm fw-bold">
+                            <i class="bi bi-reply-fill me-1"></i> Javob yozish
+                        </a>
+                        <a href="{% url 'messaging:delete_message' message.id %}" class="btn btn-outline-danger btn-sm" onclick="return confirm('Xabarni o‘chirishni xohlaysizmi?');">
+                            <i class="bi bi-trash"></i>
+                        </a>
+                    </div>
+                </div>
+
+                <div class="card-body p-4">
+                    <h4 class="fw-bold text-dark mb-3">{{ message.subject }}</h4>
+
+                    <!-- YUBORUVCHI VA QABUL QILUVCHI -->
+                    <div class="d-flex align-items-center gap-3 p-3 bg-light rounded-3 mb-4">
+                        <div class="rounded-circle bg-primary text-white d-flex align-items-center justify-content-center" style="width: 45px; height: 45px; font-size: 1.25rem;">
+                            <i class="bi bi-person-fill"></i>
+                        </div>
+                        <div class="flex-grow-1">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <h6 class="fw-bold mb-0 text-dark">{{ message.sender.get_full_name_uz }} <small class="text-muted fw-normal">({{ message.sender.get_role_display }})</small></h6>
+                                <small class="text-muted">{{ message.created_at|date:"d.m.Y H:i" }}</small>
+                            </div>
+                            <small class="text-muted">Kimga: {{ message.recipient.get_full_name_uz }} ({{ message.recipient.get_role_display }})</small>
+                        </div>
+                    </div>
+
+                    <!-- MATN -->
+                    <div class="p-3 fs-6 lh-base text-dark" style="white-space: pre-wrap;">
+                        {{ message.body }}
+                    </div>
+
+                    <!-- BIRIKTIRILGAN FAYL -->
+                    {% if message.attachment %}
+                    <div class="mt-4 p-3 border rounded-3 bg-light d-flex align-items-center justify-content-between">
+                        <div class="d-flex align-items-center gap-2">
+                            <i class="bi bi-paperclip fs-4 text-primary"></i>
+                            <div>
+                                <span class="fw-semibold d-block">Biriktirilgan fayl</span>
+                                <small class="text-muted">{{ message.attachment.name }}</small>
+                            </div>
+                        </div>
+                        <a href="{{ message.attachment.url }}" class="btn btn-sm btn-outline-primary fw-bold" target="_blank" download>
+                            <i class="bi bi-download me-1"></i> Yuklab olish
+                        </a>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- JAVOBLAR TARIXI (THREAD) -->
+            {% if replies %}
+            <h6 class="fw-bold text-muted mb-3"><i class="bi bi-chat-dots-fill me-2"></i>Oldingi yozishmalar</h6>
+            {% for rep in replies %}
+            <div class="card border-0 shadow-sm rounded-4 mb-3">
+                <div class="card-body p-3">
+                    <div class="d-flex justify-content-between align-items-center mb-2">
+                        <span class="fw-bold text-dark">{{ rep.sender.get_full_name_uz }} <small class="text-muted">({{ rep.sender.get_role_display }})</small></span>
+                        <small class="text-muted">{{ rep.created_at|date:"d.m.Y H:i" }}</small>
+                    </div>
+                    <div class="text-dark" style="white-space: pre-wrap;">{{ rep.body }}</div>
+                </div>
+            </div>
+            {% endfor %}
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

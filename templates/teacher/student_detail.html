@@ -1,0 +1,125 @@
+{% extends 'teacher/base_teacher.html' %}
+
+{% block title %}{{ student.user.get_full_name_uz }} — O‘quvchi profili{% endblock %}
+
+{% block teacher_content %}
+<div class="mb-4">
+    <a href="{% url 'teachers:teacher_group_detail' group.id %}" class="btn btn-outline-secondary btn-sm mb-2">
+        <i class="bi bi-arrow-left me-1"></i> {{ group.name }} guruhiga qaytish
+    </a>
+    <div class="d-flex justify-content-between align-items-center">
+        <div>
+            <h3 class="fw-bold mb-1 text-dark">{{ student.user.get_full_name_uz }}</h3>
+            <span class="badge bg-primary px-3 py-1">{{ group.name }} guruhi</span>
+            <span class="badge bg-light text-dark border">{{ student.get_education_type_display }}</span>
+        </div>
+        <div>
+            <a href="#message" class="btn btn-outline-primary btn-sm">
+                <i class="bi bi-chat-dots me-1"></i> Xabar yozish
+            </a>
+        </div>
+    </div>
+</div>
+
+<div class="row g-4">
+    <!-- Chap: O'quvchi ma'lumotlari -->
+    <div class="col-lg-4">
+        <div class="card border-0 shadow-sm rounded-4 p-4 text-center bg-white mb-4">
+            <div class="rounded-circle bg-primary-subtle text-primary d-inline-flex align-items-center justify-content-center shadow-sm mb-3" style="width: 100px; height: 100px; font-size: 2.5rem;">
+                <i class="bi bi-person-fill"></i>
+            </div>
+            <h5 class="fw-bold mb-1">{{ student.user.get_full_name_uz }}</h5>
+            <p class="text-muted small mb-2">@{{ student.user.username }}</p>
+            <span class="badge bg-success-subtle text-success px-3 py-1 rounded-pill">{{ student.get_status_display }}</span>
+
+            <div class="border-top mt-4 pt-3 text-start small">
+                <div class="d-flex justify-content-between py-1 border-bottom">
+                    <span class="text-muted">Talaba ID:</span>
+                    <strong>{{ student.student_id_number|default:"—" }}</strong>
+                </div>
+                <div class="d-flex justify-content-between py-1 border-bottom">
+                    <span class="text-muted">Telefon:</span>
+                    <strong>{{ student.user.phone|default:"—" }}</strong>
+                </div>
+                <div class="d-flex justify-content-between py-1 border-bottom">
+                    <span class="text-muted">Ota-onasi:</span>
+                    <strong>{{ student.parent_name|default:"—" }}</strong>
+                </div>
+                <div class="d-flex justify-content-between py-1">
+                    <span class="text-muted">Ota-ona tel:</span>
+                    <strong>{{ student.parent_phone|default:"—" }}</strong>
+                </div>
+            </div>
+        </div>
+
+        <!-- Kuchli va e'tibor kerak fanlar -->
+        <div class="card border-0 shadow-sm rounded-4 p-4 bg-white">
+            <h6 class="fw-bold text-dark mb-3">Tahlil va Tavsiyalar</h6>
+            <div class="mb-3">
+                <small class="text-muted fw-bold d-block mb-1"><i class="bi bi-star-fill text-warning me-1"></i> Kuchli fanlar:</small>
+                {% for sf in strong_subjects %}
+                    <span class="badge bg-success-subtle text-success mb-1">{{ sf }}</span>
+                {% endfor %}
+            </div>
+            <div>
+                <small class="text-muted fw-bold d-block mb-1"><i class="bi bi-exclamation-triangle-fill text-warning me-1"></i> Ko‘proq e'tibor kerak:</small>
+                {% for af in attention_needed_subjects %}
+                    <span class="badge bg-warning-subtle text-dark mb-1">{{ af }}</span>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+
+    <!-- O'ng: Akademik natijalar -->
+    <div class="col-lg-8">
+        <div class="row g-3 mb-4">
+            <div class="col-md-6">
+                <div class="card border-0 shadow-sm rounded-4 p-3 bg-white border-start border-primary border-4">
+                    <span class="text-muted small fw-semibold d-block">O‘rtacha Bahosi (GPA)</span>
+                    <h2 class="fw-bold text-primary mb-0">{{ gpa }} / 5.0</h2>
+                    <small class="text-success fw-bold"><i class="bi bi-arrow-up"></i> Yuqori o‘zlashtirish</small>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="card border-0 shadow-sm rounded-4 p-3 bg-white border-start border-success border-4">
+                    <span class="text-muted small fw-semibold d-block">Umumiy Davomati</span>
+                    <h2 class="fw-bold text-success mb-0">{{ attendance_percentage }}%</h2>
+                    <small class="text-muted">Darslarda muntazam ishtirok</small>
+                </div>
+            </div>
+        </div>
+
+        <!-- Faollik ko'rsatkichlari (Section 15) -->
+        <div class="card border-0 shadow-sm rounded-4 p-4 bg-white mb-4">
+            <h5 class="fw-bold mb-3 text-dark"><i class="bi bi-award me-2 text-primary"></i> Darsdagi Faollik Ko‘rsatkichlari</h5>
+            <div class="row g-3 small">
+                <div class="col-6 col-md-3 text-center p-2 rounded bg-light border">
+                    <div class="fw-bold text-success fs-5">A'lo</div>
+                    <div class="text-muted">Savol-javoblar</div>
+                </div>
+                <div class="col-6 col-md-3 text-center p-2 rounded bg-light border">
+                    <div class="fw-bold text-primary fs-5">100%</div>
+                    <div class="text-muted">Amaliy topshiriqlar</div>
+                </div>
+                <div class="col-6 col-md-3 text-center p-2 rounded bg-light border">
+                    <div class="fw-bold text-success fs-5">Vaqtida</div>
+                    <div class="text-muted">Uy vazifalari</div>
+                </div>
+                <div class="col-6 col-md-3 text-center p-2 rounded bg-light border">
+                    <div class="fw-bold text-info fs-5">Faol</div>
+                    <div class="text-muted">Darsdagi ishtirok</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- O'qituvchi izohi qoldirish -->
+        <div class="card border-0 shadow-sm rounded-4 p-4 bg-white">
+            <h5 class="fw-bold mb-3 text-dark"><i class="bi bi-chat-left-text me-2 text-primary"></i> O‘quvchiga O‘qituvchi Izohi</h5>
+            <textarea class="form-control mb-3" rows="3" placeholder="O‘quvchining o‘zlashtirishi yoki xulqi bo‘yicha xolis tavsiya va izoh yozing..."></textarea>
+            <button type="button" class="btn btn-primary-custom btn-sm px-4">
+                <i class="bi bi-check-lg me-1"></i> Izohni saqlash
+            </button>
+        </div>
+    </div>
+</div>
+{% endblock %}

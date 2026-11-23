@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Administrator Paneli — Guliston 1-son texnikumi{% endblock %}</title>
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Bootstrap Icons -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.2/dist/chart.umd.min.js"></script>
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="/static/css/main.css">
+    <link rel="stylesheet" href="/static/css/dashboard.css">
+    {% block extra_css %}{% endblock %}
+</head>
+<body>
+<div id="admin-wrapper">
+    <!-- CHAP SIDEBAR (ADMINISTRATOR MENYUSI — 20 TA BO'LIM) -->
+    <aside id="admin-sidebar">
+        <div class="sidebar-brand">
+            <a href="{% url 'core:admin_dashboard' %}" class="d-flex align-items-center gap-2 text-white text-decoration-none">
+                <i class="bi bi-mortarboard-fill fs-4 text-info"></i>
+                <div class="lh-1">
+                    <span class="fw-bold d-block fs-6">GULISTON 1-TEXNIKUM</span>
+                    <small class="text-white-50" style="font-size: 0.72rem;">ADMIN DASHBOARD</small>
+                </div>
+            </a>
+        </div>
+
+        <div class="sidebar-menu">
+            <div class="text-uppercase text-white-50 fw-bold px-3 py-2" style="font-size: 0.7rem; letter-spacing: 0.5px;">Boshqaruv</div>
+            <nav class="nav flex-column">
+                <a class="nav-link {% if request.resolver_match.url_name == 'admin_dashboard' %}active{% endif %}" href="{% url 'core:admin_dashboard' %}">
+                    <i class="bi bi-grid-fill"></i> 1. Bosh sahifa
+                </a>
+                <a class="nav-link {% if request.resolver_match.url_name == 'admin_students' %}active{% endif %}" href="{% url 'core:admin_students' %}">
+                    <i class="bi bi-people-fill"></i> 2. O‘quvchilar
+                </a>
+                <a class="nav-link {% if request.resolver_match.url_name == 'admin_teachers' %}active{% endif %}" href="{% url 'core:admin_teachers' %}">
+                    <i class="bi bi-person-badge-fill"></i> 3. O‘qituvchilar
+                </a>
+                <a class="nav-link" href="{% url 'core:admin_dashboard' %}#monitoring">
+                    <i class="bi bi-diagram-3-fill"></i> 4. Guruhlar va monitoring
+                </a>
+                <a class="nav-link" href="/admin/subjects/subject/">
+                    <i class="bi bi-book-half"></i> 5. Fanlar
+                </a>
+                <a class="nav-link" href="{% url 'journal:journal_view' %}">
+                    <i class="bi bi-journal-bookmark-fill"></i> 6. Elektron jurnallar
+                </a>
+                <a class="nav-link" href="{% url 'attendance:attendance_view' %}">
+                    <i class="bi bi-calendar-check-fill"></i> 7. Davomat statistikasi
+                </a>
+                <a class="nav-link" href="{% url 'timetable:timetable_view' %}">
+                    <i class="bi bi-clock-history"></i> 8. Dars jadvali
+                </a>
+                <a class="nav-link" href="{% url 'assignments:assignment_list' %}">
+                    <i class="bi bi-clipboard2-check-fill"></i> 9. Uy vazifalari
+                </a>
+                <a class="nav-link" href="#analytics">
+                    <i class="bi bi-graph-up-arrow"></i> 10. O‘zlashtirish tahlili
+                </a>
+                <a class="nav-link" href="{% url 'events:event_list' %}">
+                    <i class="bi bi-calendar-event-fill"></i> 11. Tadbirlar va bayramlar
+                </a>
+                <a class="nav-link" href="{% url 'projects:projects_list' %}">
+                    <i class="bi bi-lightbulb-fill"></i> 12. Loyihalar va takliflar
+                </a>
+                <a class="nav-link" href="{% url 'projects:projects_list' %}">
+                    <i class="bi bi-chat-left-dots-fill"></i> 13. Muhokamalar
+                </a>
+                <a class="nav-link" href="{% url 'library:catalog' %}">
+                    <i class="bi bi-collection-fill"></i> 14. Elektron kutubxona
+                </a>
+                <a class="nav-link" href="{% url 'messaging:inbox' %}">
+                    <i class="bi bi-envelope-fill"></i> 15. Xabarlar
+                </a>
+                <a class="nav-link" href="{% url 'notifications:notifications_list' %}">
+                    <i class="bi bi-bell-fill"></i> 16. Bildirishnomalar
+                </a>
+                <a class="nav-link" href="{% url 'documents:documents_list' %}">
+                    <i class="bi bi-file-earmark-text-fill"></i> 17. Tibbiy hujjatlar
+                </a>
+                <a class="nav-link" href="{% url 'reports:dashboard' %}">
+                    <i class="bi bi-file-earmark-bar-graph-fill"></i> 18. Hisobotlar
+                </a>
+                <a class="nav-link" href="{% url 'audit:audit_log' %}">
+                    <i class="bi bi-shield-shaded"></i> 19. Audit tarixi
+                </a>
+                <a class="nav-link" href="/admin/">
+                    <i class="bi bi-gear-fill"></i> 20. Sozlamalar
+                </a>
+            </nav>
+        </div>
+    </aside>
+
+    <!-- ASOSIY QISM (CONTENT) -->
+    <div id="admin-content">
+        <!-- YUQORI NAVBAR -->
+        <header id="admin-topbar">
+            <div class="d-flex align-items-center gap-3">
+                <button class="btn btn-outline-secondary btn-sm d-lg-none" id="sidebarToggle">
+                    <i class="bi bi-list fs-5"></i>
+                </button>
+                <div class="input-group d-none d-md-flex" style="width: 280px;">
+                    <span class="input-group-text bg-light border-end-0"><i class="bi bi-search text-muted"></i></span>
+                    <input type="text" class="form-control bg-light border-start-0" placeholder="O‘quvchi, guruh yoki fan qidirish...">
+                </div>
+            </div>
+
+            <div class="d-flex align-items-center gap-3">
+                <!-- Bildirishnomalar belgisi -->
+                <div class="dropdown">
+                    <button class="btn btn-light position-relative rounded-circle p-2" type="button" data-bs-toggle="dropdown">
+                        <i class="bi bi-bell fs-5 text-secondary"></i>
+                        <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
+                            3
+                        </span>
+                    </button>
+                    <ul class="dropdown-menu dropdown-menu-end shadow-sm border-0 p-2" style="width: 280px;">
+                        <li class="dropdown-header fw-bold">Bildirishnomalar</li>
+                        <li><a class="dropdown-item small" href="{% url 'notifications:notifications_list' %}"><i class="bi bi-bell text-primary me-2"></i>Barcha bildirishnomalarni ko‘rish</a></li>
+                    </ul>
+                </div>
+
+                <!-- Foydalanuvchi profili menyusi -->
+                <div class="dropdown">
+                    <a href="#" class="d-flex align-items-center gap-2 text-decoration-none dropdown-toggle" data-bs-toggle="dropdown">
+                        <div class="rounded-circle bg-primary text-white d-flex align-items-center justify-content-center" style="width: 38px; height: 38px;">
+                            <i class="bi bi-person-fill"></i>
+                        </div>
+                        <div class="d-none d-sm-block text-start lh-1">
+                            <span class="fw-bold d-block text-dark small">{{ request.user.get_full_name_uz|default:request.user.username }}</span>
+                            <small class="text-muted" style="font-size: 0.72rem;">{{ request.user.get_role_display }}</small>
+                        </div>
+                    </a>
+                    <ul class="dropdown-menu dropdown-menu-end shadow-sm border-0">
+                        <li><a class="dropdown-item" href="{% url 'accounts:profile' %}"><i class="bi bi-person me-2"></i>Mening profilim</a></li>
+                        <li><a class="dropdown-item" href="{% url 'core:home' %}" target="_blank"><i class="bi bi-globe me-2"></i>Ommaviy veb-sayt</a></li>
+                        <li><hr class="dropdown-divider"></li>
+                        <li><a class="dropdown-item text-danger" href="{% url 'accounts:logout' %}"><i class="bi bi-box-arrow-right me-2"></i>Tizimdan chiqish</a></li>
+                    </ul>
+                </div>
+            </div>
+        </header>
+
+        <!-- SAHIFA TANASI -->
+        <main class="p-4">
+            {% block admin_content %}{% endblock %}
+        </main>
+    </div>
+</div>
+
+<!-- DAVOMAT HOLATLARI BO'YICHA TALABALAR MODALI -->
+<div class="modal fade" id="attendanceStatusModal" tabindex="-1" aria-labelledby="modalStatusTitle" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
+        <div class="modal-content border-0 shadow rounded-4 overflow-hidden">
+            <div class="modal-header bg-primary-custom text-white py-3">
+                <div>
+                    <h5 class="modal-title fw-bold mb-0" id="modalStatusTitle">Talabalar ro‘yxati</h5>
+                    <small class="text-white-50" id="modalStatusSubtitle">Yuklanmoqda...</small>
+                </div>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Yopish"></button>
+            </div>
+            <div class="modal-body p-0" id="modalStatusBody">
+                <!-- Dinamik o'quvchilar ro'yxati -->
+            </div>
+            <div class="modal-footer bg-light py-2">
+                <button type="button" class="btn btn-secondary btn-sm rounded-pill px-4" data-bs-dismiss="modal">Yopish</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Bootstrap 5 JS Bundle -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script src="/static/js/main.js"></script>
+<script src="/static/js/dashboard.js"></script>
+{% block extra_js %}{% endblock %}
+</body>
+</html>

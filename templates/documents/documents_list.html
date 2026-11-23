@@ -1,0 +1,156 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Spravka va Hujjatlarni Tekshirish — Guliston 1-son texnikumi{% endblock %}
+
+{% block content %}
+<div class="bg-primary-custom text-white py-3 shadow-sm mb-4">
+    <div class="container d-flex justify-content-between align-items-center">
+        <div class="d-flex align-items-center gap-3">
+            <a href="{% url 'accounts:dashboard_redirect' %}" class="btn btn-outline-light btn-sm">
+                <i class="bi bi-arrow-left"></i> Panelga qaytish
+            </a>
+            <h4 class="fw-bold mb-0"><i class="bi bi-file-medical-fill me-2 text-info"></i> Tibbiy Ma'lumotnoma va Tushuntirish Xatlari</h4>
+        </div>
+        <span class="badge bg-warning text-dark">Maxfiy hujjatlar nazorati</span>
+    </div>
+</div>
+
+<div class="container py-2">
+    {% if messages %}
+        {% for m in messages %}
+            <div class="alert alert-{{ m.tags }} alert-dismissible fade show small" role="alert">
+                {{ m }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+        {% endfor %}
+    {% endif %}
+
+    <!-- FILTR -->
+    <div class="card border-0 shadow-sm rounded-4 p-3 bg-white mb-4">
+        <form method="get" class="row g-2 align-items-center">
+            <div class="col-md-5">
+                <select name="group" class="form-select bg-light">
+                    <option value="">Barcha guruhlar</option>
+                    {% for g in groups %}
+                        <option value="{{ g.name }}" {% if group_filter == g.name %}selected{% endif %}>{{ g.name }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="col-md-4">
+                <select name="status" class="form-select bg-light">
+                    <option value="">Barcha holatlar</option>
+                    {% for s_val, s_name in statuses %}
+                        <option value="{{ s_val }}" {% if status_filter == s_val %}selected{% endif %}>{{ s_name }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="col-md-3">
+                <button type="submit" class="btn btn-primary-custom w-100">
+                    <i class="bi bi-funnel-fill me-1"></i> Filtrlash
+                </button>
+            </div>
+        </form>
+    </div>
+
+    <!-- HUJJATLAR JADVALI -->
+    <div class="card border-0 shadow-sm rounded-4 p-4 bg-white mb-4">
+        <div class="table-responsive">
+            <table class="table table-hover align-middle small">
+                <thead class="table-light">
+                    <tr>
+                        <th>O‘quvchi</th>
+                        <th>Guruhi</th>
+                        <th>Hujjat turi</th>
+                        <th>Davr (Sanalar)</th>
+                        <th>Holati</th>
+                        <th>Yuklangan fayl</th>
+                        <th class="text-end">Tekshiruv</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for doc in documents %}
+                    <tr>
+                        <td>
+                            <strong class="text-dark d-block">{{ doc.student.user.get_full_name_uz }}</strong>
+                            <small class="text-muted">{{ doc.student.student_id_number|default:"—" }}</small>
+                        </td>
+                        <td><span class="badge bg-primary">{{ doc.group.name }}</span></td>
+                        <td>{{ doc.get_doc_type_display }}</td>
+                        <td>{{ doc.start_date|date:"d.m.Y" }} — {{ doc.end_date|date:"d.m.Y" }}</td>
+                        <td>
+                            {% if doc.status == 'APPROVED' %}
+                                <span class="badge bg-success-subtle text-success">Tasdiqlangan</span>
+                            {% elif doc.status == 'REJECTED' %}
+                                <span class="badge bg-danger-subtle text-danger">Rad etilgan</span>
+                            {% elif doc.status == 'REVIEWING' %}
+                                <span class="badge bg-info-subtle text-info">Tekshirilmoqda</span>
+                            {% else %}
+                                <span class="badge bg-warning-subtle text-dark">Yangi</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            <a href="{{ doc.file.url }}" target="_blank" class="btn btn-outline-secondary btn-sm py-0">
+                                <i class="bi bi-file-earmark-arrow-down me-1"></i> Faylni ko‘rish
+                            </a>
+                        </td>
+                        <td class="text-end">
+                            <button type="button" class="btn btn-outline-primary btn-sm" onclick="openReviewModal('{{ doc.id }}', '{{ doc.student.user.get_full_name_uz }}')">
+                                <i class="bi bi-check2-circle me-1"></i> Tekshirish
+                            </button>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="7" class="text-center text-muted py-4">Hujjatlar mavjud emas.</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<!-- TEKSHIRUV MODAL OYNASI -->
+<div class="modal fade" id="reviewModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content rounded-4 border-0 shadow">
+            <form method="post">
+                {% csrf_token %}
+                <input type="hidden" name="doc_id" id="modalDocId">
+                <div class="modal-header bg-primary-custom text-white">
+                    <h5 class="modal-title fw-bold" id="modalStudentName">Hujjatni tekshirish</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body p-4">
+                    <div class="mb-3">
+                        <label class="form-label small fw-semibold">Qaror (Holat) *:</label>
+                        <select name="status" class="form-select form-select-lg fw-bold" required>
+                            <option value="APPROVED" class="text-success">Tasdiqlash (Sababli deb topilsin)</option>
+                            <option value="REJECTED" class="text-danger">Rad etish (Asossiz hujjat)</option>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label small fw-semibold">Tekshiruvchi izohi:</label>
+                        <textarea name="review_comment" class="form-control" rows="3" placeholder="Izoh yoki sababni yozing..."></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-light" data-bs-dismiss="modal">Bekor qilish</button>
+                    <button type="submit" class="btn btn-primary-custom px-4">Qarorni saqlash</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    function openReviewModal(docId, studentName) {
+        document.getElementById('modalDocId').value = docId;
+        document.getElementById('modalStudentName').innerText = studentName + " — Hujjat tekshiruvi";
+        new bootstrap.Modal(document.getElementById('reviewModal')).show();
+    }
+</script>
+{% endblock %}

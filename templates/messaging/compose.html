@@ -1,0 +1,63 @@
+{% extends 'base.html' %}
+
+{% block title %}Yangi xabar yozish — Guliston 1-son texnikumi{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="card border-0 shadow-sm rounded-4 p-4">
+                <div class="d-flex justify-content-between align-items-center mb-4 pb-2 border-bottom">
+                    <h5 class="fw-bold mb-0 text-dark">
+                        <i class="bi bi-pencil-square text-primary me-2"></i>Yangi xabar yozish
+                    </h5>
+                    <a href="{% url 'messaging:inbox' %}" class="btn btn-outline-secondary btn-sm rounded-3">
+                        <i class="bi bi-x-lg me-1"></i> Bekor qilish
+                    </a>
+                </div>
+
+                <form method="post" enctype="multipart/form-data">
+                    {% csrf_token %}
+                    {% if reply_to_id %}
+                    <input type="hidden" name="parent_message_id" value="{{ reply_to_id }}">
+                    {% endif %}
+
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">Qabul qiluvchi shaxs <span class="text-danger">*</span></label>
+                        <select name="recipient_id" class="form-select form-select-lg" required>
+                            <option value="">— Qabul qiluvchini tanlang —</option>
+                            {% for u in users %}
+                            <option value="{{ u.id }}" {% if prefill_recipient and prefill_recipient.id == u.id %}selected{% endif %}>
+                                {{ u.get_full_name_uz }} ({{ u.get_role_display }} — {{ u.username }})
+                            </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">Mavzu <span class="text-danger">*</span></label>
+                        <input type="text" name="subject" class="form-control" placeholder="Xabar mavzusi..." value="{{ prefill_subject }}" required>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">Xabar matni <span class="text-danger">*</span></label>
+                        <textarea name="body" class="form-control" rows="6" placeholder="Hurmatli ustoz / talaba..." required></textarea>
+                    </div>
+
+                    <div class="mb-4">
+                        <label class="form-label fw-semibold">Fayl biriktirish (Ixtiyoriy, rasm yoki hujjat)</label>
+                        <input type="file" name="attachment" class="form-control">
+                    </div>
+
+                    <div class="d-flex justify-content-end gap-2">
+                        <a href="{% url 'messaging:inbox' %}" class="btn btn-light px-4">Ortga</a>
+                        <button type="submit" class="btn btn-primary px-4 fw-bold">
+                            <i class="bi bi-send-fill me-1"></i> Xabarni yuborish
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

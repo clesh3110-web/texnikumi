@@ -1,0 +1,87 @@
+{% extends 'student/base_student.html' %}
+
+{% block title %}Mening Davomatim — O‘quvchi Kabineti{% endblock %}
+
+{% block student_content %}
+<div class="mb-4">
+    <a href="{% url 'students:student_dashboard' %}" class="btn btn-outline-secondary btn-sm mb-2">
+        <i class="bi bi-arrow-left me-1"></i> Dashboardga qaytish
+    </a>
+    <h3 class="fw-bold mb-1 text-dark">Mening Davomatim</h3>
+    <p class="text-muted small mb-0">Darslarda ishtirok etish statistikangiz va kelmagan kunlar hisoboti</p>
+</div>
+
+<!-- STATISTIKA KARTALARI -->
+<div class="row g-3 mb-4">
+    <div class="col-sm-6 col-md-3">
+        <div class="card border-0 shadow-sm rounded-4 p-3 bg-white border-start border-primary border-4">
+            <span class="text-muted small fw-semibold">Umumiy Davomat</span>
+            <h3 class="fw-bold text-primary mb-0">{{ overall_percent }}%</h3>
+        </div>
+    </div>
+    <div class="col-sm-6 col-md-3">
+        <div class="card border-0 shadow-sm rounded-4 p-3 bg-white border-start border-success border-4">
+            <span class="text-muted small fw-semibold">Darsda bo‘lgan</span>
+            <h3 class="fw-bold text-success mb-0">{{ present_count }} juftlik</h3>
+        </div>
+    </div>
+    <div class="col-sm-6 col-md-3">
+        <div class="card border-0 shadow-sm rounded-4 p-3 bg-white border-start border-warning border-4">
+            <span class="text-muted small fw-semibold">Kechikkan kunlar</span>
+            <h3 class="fw-bold text-warning mb-0">{{ late_count }} juftlik</h3>
+        </div>
+    </div>
+    <div class="col-sm-6 col-md-3">
+        <div class="card border-0 shadow-sm rounded-4 p-3 bg-white border-start border-info border-4">
+            <span class="text-muted small fw-semibold">Kasallik sababli</span>
+            <h3 class="fw-bold text-info mb-0">{{ sick_count }} juftlik</h3>
+        </div>
+    </div>
+</div>
+
+<div class="card border-0 shadow-sm rounded-4 p-4 bg-white mb-4">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h5 class="fw-bold mb-0 text-dark"><i class="bi bi-calendar3 me-2 text-primary"></i> Davomat Tarixi</h5>
+        <a href="{% url 'documents:student_documents' %}" class="btn btn-outline-primary btn-sm">
+            <i class="bi bi-file-earmark-plus me-1"></i> Spravka yuklash
+        </a>
+    </div>
+
+    <div class="table-responsive">
+        <table class="table table-hover align-middle small">
+            <thead class="table-light">
+                <tr>
+                    <th>Sana</th>
+                    <th>Juftlik</th>
+                    <th>Holati</th>
+                    <th>Izoh</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for att in attendances %}
+                <tr>
+                    <td class="fw-bold text-dark">{{ att.date|date:"d.m.Y" }}</td>
+                    <td>{{ att.get_lesson_pair_display }}</td>
+                    <td>
+                        {% if att.status == 'PRESENT' %}
+                            <span class="badge bg-success-subtle text-success">Darsda</span>
+                        {% elif att.status == 'LATE' %}
+                            <span class="badge bg-warning-subtle text-dark">Kechikdi</span>
+                        {% elif att.status == 'SICK' %}
+                            <span class="badge bg-info-subtle text-info">Kasallik</span>
+                        {% else %}
+                            <span class="badge bg-danger-subtle text-danger">Kelmagan</span>
+                        {% endif %}
+                    </td>
+                    <td class="text-muted">{{ att.comment|default:"—" }}</td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="4" class="text-center text-muted py-4">Hozircha davomat yozuvlari mavjud emas.</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

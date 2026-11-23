@@ -1,0 +1,43 @@
+{% extends 'student/base_student.html' %}
+
+{% block title %}Mening Baholarim — O‘quvchi Kabineti{% endblock %}
+
+{% block student_content %}
+<div class="mb-4">
+    <a href="{% url 'students:student_dashboard' %}" class="btn btn-outline-secondary btn-sm mb-2">
+        <i class="bi bi-arrow-left me-1"></i> Dashboardga qaytish
+    </a>
+    <h3 class="fw-bold mb-1 text-dark">Mening Baholarim</h3>
+    <p class="text-muted small mb-0">Fanlar bo‘yicha qo‘yilgan barcha joriy va oraliq baholaringiz</p>
+</div>
+
+<div class="row g-4">
+    {% for subj_name, grades_list in subjects_grades.items %}
+    <div class="col-md-6">
+        <div class="card border-0 shadow-sm rounded-4 p-4 bg-white h-100">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <h5 class="fw-bold text-primary mb-0">{{ subj_name }}</h5>
+                <span class="badge bg-light text-dark border">{{ grades_list|length }} ta baho</span>
+            </div>
+
+            <div class="d-flex flex-wrap gap-2 mb-3">
+                {% for g in grades_list %}
+                    <div class="text-center p-2 rounded-3 border {% if g.score >= 4 %}bg-success-subtle border-success text-success{% elif g.score == 3 %}bg-warning-subtle border-warning text-dark{% else %}bg-danger-subtle border-danger text-danger{% endif %}" style="min-width: 60px;">
+                        <span class="fw-bold fs-5 d-block lh-1">{{ g.score }}</span>
+                        <small style="font-size: 0.65rem;">{{ g.lesson_date|date:"d.m" }}</small>
+                    </div>
+                {% endfor %}
+            </div>
+
+            <div class="small text-muted border-top pt-2 mt-auto">
+                Oxirgi baho turi: <strong>{{ grades_list.0.get_grade_type_display }}</strong>
+            </div>
+        </div>
+    </div>
+    {% empty %}
+    <div class="col-12 text-center text-muted py-5">
+        Hozircha sizga baholar qo‘yilmagan.
+    </div>
+    {% endfor %}
+</div>
+{% endblock %}

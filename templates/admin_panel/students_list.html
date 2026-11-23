@@ -1,0 +1,137 @@
+{% extends 'admin_panel/base_admin.html' %}
+
+{% block title %}O‘quvchilar ro‘yxati — Boshqaruv paneli{% endblock %}
+
+{% block admin_content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <h4 class="fw-bold text-dark mb-1">O‘quvchilar Boshqaruvi va Monitoringi</h4>
+        <p class="text-muted small mb-0">Jami topilgan o‘quvchilar: <strong>{{ total_count }}</strong> nafar</p>
+    </div>
+</div>
+
+<!-- QIDIRUV VA FILTRLAR -->
+<div class="card border-0 shadow-sm rounded-4 p-3 bg-white mb-4">
+    <form method="get" class="row g-2 align-items-center">
+        <div class="col-md-5">
+            <div class="input-group">
+                <span class="input-group-text bg-light border-end-0"><i class="bi bi-search text-muted"></i></span>
+                <input type="text" name="q" class="form-control bg-light border-start-0" placeholder="Ism, familiya, telefon yoki ID bo‘yicha qidirish..." value="{{ query }}">
+            </div>
+        </div>
+        <div class="col-md-3">
+            <select name="group" class="form-select bg-light">
+                <option value="">Barcha guruhlar</option>
+                {% for g in groups %}
+                    <option value="{{ g.name }}" {% if group_filter == g.name %}selected{% endif %}>{{ g.name }} ({{ g.total_students_count }})</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="col-md-2">
+            <select name="status" class="form-select bg-light">
+                <option value="">Barcha holatlar</option>
+                <option value="ACTIVE" {% if status_filter == 'ACTIVE' %}selected{% endif %}>O‘qimoqda</option>
+                <option value="LEAVE" {% if status_filter == 'LEAVE' %}selected{% endif %}>Akademik ta‘tilda</option>
+                <option value="EXPELLED" {% if status_filter == 'EXPELLED' %}selected{% endif %}>Chetlashtirilgan</option>
+            </select>
+        </div>
+        <div class="col-md-2 d-flex gap-2">
+            <button type="submit" class="btn btn-primary-custom w-100">
+                <i class="bi bi-funnel-fill me-1"></i> Filtr
+            </button>
+            {% if query or group_filter or status_filter %}
+                <a href="{% url 'core:admin_students' %}" class="btn btn-outline-secondary" title="Filtrni tozalash">
+                    <i class="bi bi-x-lg"></i>
+                </a>
+            {% endif %}
+        </div>
+    </form>
+</div>
+
+<!-- JADVAL -->
+<div class="card border-0 shadow-sm rounded-4 p-4 bg-white">
+    <div class="table-responsive">
+        <table class="table table-hover align-middle">
+            <thead class="table-light small">
+                <tr>
+                    <th>F.I.Sh (O‘quvchi)</th>
+                    <th>Guruhi</th>
+                    <th>Talaba ID</th>
+                    <th>Telefon</th>
+                    <th>Ta'lim shakli</th>
+                    <th>Ota-onasi</th>
+                    <th>Holati</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for st in page_obj %}
+                <tr>
+                    <td>
+                        <div class="d-flex align-items-center gap-2">
+                            <div class="rounded-circle bg-primary-subtle text-primary d-flex align-items-center justify-content-center" style="width: 36px; height: 36px;">
+                                <i class="bi bi-person-fill"></i>
+                            </div>
+                            <div>
+                                <a href="{% url 'accounts:profile' %}" class="fw-bold text-dark text-decoration-none">
+                                    {{ st.user.get_full_name_uz|default:st.user.username }}
+                                </a>
+                                <small class="text-muted d-block" style="font-size: 0.72rem;">@{{ st.user.username }}</small>
+                            </div>
+                        </div>
+                    </td>
+                    <td>
+                        {% if st.group %}
+                            <a href="{% url 'core:admin_group_detail' st.group.id %}" class="badge bg-primary text-decoration-none">
+                                {{ st.group.name }}
+                            </a>
+                        {% else %}
+                            <span class="badge bg-secondary">Biriktirilmagan</span>
+                        {% endif %}
+                    </td>
+                    <td><span class="badge bg-light text-secondary border">{{ st.student_id_number|default:"—" }}</span></td>
+                    <td class="small">{{ st.user.phone|default:"—" }}</td>
+                    <td>
+                        {% if st.education_type == 'GRANT' %}
+                            <span class="badge bg-success-subtle text-success">Davlat granti</span>
+                        {% else %}
+                            <span class="badge bg-info-subtle text-info">To‘lov-shartnoma</span>
+                        {% endif %}
+                    </td>
+                    <td class="small text-muted">{{ st.parent_name|default:"—" }}</td>
+                    <td>
+                        <span class="badge bg-success-subtle text-success">{{ st.get_status_display }}</span>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="7" class="text-center text-muted py-4">Bunday mezon bo‘yicha o‘quvchilar topilmadi.</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <!-- SAHIFA ALMASHISH (PAGINATION) -->
+    {% if page_obj.has_other_pages %}
+    <nav class="mt-4">
+        <ul class="pagination justify-content-center mb-0">
+            {% if page_obj.has_previous %}
+                <li class="page-item">
+                    <a class="page-link" href="?page={{ page_obj.previous_page_number }}{% if query %}&q={{ query }}{% endif %}{% if group_filter %}&group={{ group_filter }}{% endif %}">Oldingi</a>
+                </li>
+            {% endif %}
+            
+            <li class="page-item active">
+                <span class="page-link">{{ page_obj.number }} / {{ page_obj.paginator.num_pages }}</span>
+            </li>
+
+            {% if page_obj.has_next %}
+                <li class="page-item">
+                    <a class="page-link" href="?page={{ page_obj.next_page_number }}{% if query %}&q={{ query }}{% endif %}{% if group_filter %}&group={{ group_filter }}{% endif %}">Keyingi</a>
+                </li>
+            {% endif %}
+        </ul>
+    </nav>
+    {% endif %}
+</div>
+{% endblock %}

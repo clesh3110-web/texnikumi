@@ -1,0 +1,110 @@
+{% extends 'base.html' %}
+
+{% block title %}Yuborilgan xabarlar — Guliston 1-son texnikumi{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="row g-4">
+        <!-- XABARLAR YON MENYUSI -->
+        <div class="col-lg-3">
+            <div class="card border-0 shadow-sm rounded-4 p-3 mb-3">
+                <a href="{% url 'messaging:compose' %}" class="btn btn-primary w-100 fw-bold py-2 mb-3">
+                    <i class="bi bi-pencil-square me-2"></i> Yangi xabar
+                </a>
+                <div class="list-group list-group-flush">
+                    <a href="{% url 'messaging:inbox' %}" class="list-group-item list-group-item-action border-0 rounded-3 d-flex justify-content-between align-items-center">
+                        <span><i class="bi bi-inbox-fill me-2"></i> Kiruvchi</span>
+                    </a>
+                    <a href="{% url 'messaging:sent' %}" class="list-group-item list-group-item-action border-0 rounded-3 d-flex justify-content-between align-items-center active fw-bold">
+                        <span><i class="bi bi-send-fill me-2"></i> Yuborilganlar</span>
+                    </a>
+                </div>
+            </div>
+
+            <!-- QAYTISH TUGMASI -->
+            {% if user.is_student %}
+            <a href="{% url 'students:student_dashboard' %}" class="btn btn-outline-secondary w-100 rounded-3">
+                <i class="bi bi-arrow-left me-1"></i> Kabinetga qaytish
+            </a>
+            {% elif user.is_teacher %}
+            <a href="{% url 'teachers:teacher_dashboard' %}" class="btn btn-outline-secondary w-100 rounded-3">
+                <i class="bi bi-arrow-left me-1"></i> Kabinetga qaytish
+            </a>
+            {% else %}
+            <a href="{% url 'core:admin_dashboard' %}" class="btn btn-outline-secondary w-100 rounded-3">
+                <i class="bi bi-arrow-left me-1"></i> Admin panelga qaytish
+            </a>
+            {% endif %}
+        </div>
+
+        <!-- YUBORILGAN XABARLAR RO'YXATI -->
+        <div class="col-lg-9">
+            <div class="card border-0 shadow-sm rounded-4 overflow-hidden">
+                <div class="card-header bg-white py-3 border-0 d-flex justify-content-between align-items-center">
+                    <h5 class="fw-bold mb-0 text-dark">
+                        <i class="bi bi-send-fill text-success me-2"></i>Yuborilgan xabarlar
+                    </h5>
+                    <span class="badge bg-light text-muted border">Jami: {{ messages_list.count }} ta</span>
+                </div>
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle mb-0">
+                        <thead class="table-light small text-muted">
+                            <tr>
+                                <th style="width: 25%;">Qabul qiluvchi</th>
+                                <th>Mavzu</th>
+                                <th style="width: 15%;">Holat</th>
+                                <th style="width: 20%;">Vaqti</th>
+                                <th style="width: 10%;" class="text-end">Amal</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for msg in messages_list %}
+                            <tr>
+                                <td>
+                                    <span class="text-dark">{{ msg.recipient.get_full_name_uz }}</span>
+                                    <small class="d-block text-muted">{{ msg.recipient.get_role_display }}</small>
+                                </td>
+                                <td>
+                                    <a href="{% url 'messaging:message_detail' msg.id %}" class="text-decoration-none text-dark fw-semibold">
+                                        {{ msg.subject }}
+                                        {% if msg.attachment %}
+                                        <i class="bi bi-paperclip text-muted ms-1"></i>
+                                        {% endif %}
+                                    </a>
+                                </td>
+                                <td>
+                                    {% if msg.is_read %}
+                                    <span class="badge bg-success-subtle text-success border border-success-subtle">
+                                        <i class="bi bi-check2-all"></i> O‘qildi
+                                    </span>
+                                    {% else %}
+                                    <span class="badge bg-secondary-subtle text-secondary border">
+                                        <i class="bi bi-check2"></i> Yetkazildi
+                                    </span>
+                                    {% endif %}
+                                </td>
+                                <td class="text-muted small">
+                                    {{ msg.created_at|date:"d.m.Y H:i" }}
+                                </td>
+                                <td class="text-end">
+                                    <a href="{% url 'messaging:delete_message' msg.id %}" class="btn btn-sm btn-outline-danger" onclick="return confirm('Haqiqatan ham ushbu xabarni o‘chirmoqchimisiz?');">
+                                        <i class="bi bi-trash"></i>
+                                    </a>
+                                </td>
+                            </tr>
+                            {% empty %}
+                            <tr>
+                                <td colspan="5" class="text-center text-muted py-5">
+                                    <i class="bi bi-send fs-1 d-block mb-2 text-muted"></i>
+                                    Hozircha yuborilgan xabarlar yo‘q.
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

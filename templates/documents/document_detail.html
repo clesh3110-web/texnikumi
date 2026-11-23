@@ -1,0 +1,74 @@
+{% extends 'base.html' %}
+
+{% block title %}Hujjat tafsiloti — Guliston 1-son texnikumi{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="card border-0 shadow-sm rounded-4 p-4 p-md-5 bg-white">
+                <div class="d-flex justify-content-between align-items-center mb-4 border-bottom pb-3">
+                    <div>
+                        <span class="badge bg-warning text-dark mb-1">Maxfiy hujjat</span>
+                        <h4 class="fw-bold mb-0 text-dark">{{ document.get_doc_type_display }}</h4>
+                    </div>
+                    <div>
+                        {% if document.status == 'APPROVED' %}
+                            <span class="badge bg-success px-3 py-2 fs-6">Tasdiqlangan</span>
+                        {% elif document.status == 'REJECTED' %}
+                            <span class="badge bg-danger px-3 py-2 fs-6">Rad etilgan</span>
+                        {% else %}
+                            <span class="badge bg-warning text-dark px-3 py-2 fs-6">Kutilmoqda</span>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <div class="row g-3 mb-4 small">
+                    <div class="col-sm-6">
+                        <span class="text-muted d-block">O‘quvchi:</span>
+                        <strong class="fs-6 text-dark">{{ document.student.user.get_full_name_uz }}</strong>
+                    </div>
+                    <div class="col-sm-6">
+                        <span class="text-muted d-block">Guruhi:</span>
+                        <strong class="fs-6 text-dark">{{ document.group.name }}</strong>
+                    </div>
+                    <div class="col-sm-6">
+                        <span class="text-muted d-block">Kelmagan davri:</span>
+                        <strong>{{ document.start_date|date:"d.m.Y" }} dan {{ document.end_date|date:"d.m.Y" }} gacha</strong>
+                    </div>
+                    <div class="col-sm-6">
+                        <span class="text-muted d-block">Yuklangan vaqti:</span>
+                        <strong>{{ document.created_at|date:"d.m.Y H:i" }}</strong>
+                    </div>
+                </div>
+
+                <div class="mb-4">
+                    <span class="text-muted small d-block mb-1">Kelmaslik sababi:</span>
+                    <div class="p-3 rounded-3 bg-light border text-dark">
+                        {{ document.reason }}
+                    </div>
+                </div>
+
+                {% if document.review_comment %}
+                <div class="mb-4">
+                    <span class="text-muted small d-block mb-1">Tekshiruvchi xodim izohi:</span>
+                    <div class="p-3 rounded-3 bg-info-subtle border border-info text-dark">
+                        {{ document.review_comment }}
+                        <small class="d-block text-muted mt-1">Tekshirgan: {{ document.reviewed_by.get_full_name_uz }} ({{ document.reviewed_at|date:"d.m.Y H:i" }})</small>
+                    </div>
+                </div>
+                {% endif %}
+
+                <div class="d-flex justify-content-between align-items-center border-top pt-4">
+                    <a href="javascript:history.back()" class="btn btn-outline-secondary">
+                        <i class="bi bi-arrow-left me-1"></i> Orqaga
+                    </a>
+                    <a href="{{ document.file.url }}" target="_blank" class="btn btn-primary-custom px-4">
+                        <i class="bi bi-download me-1"></i> Hujjat faylini yuklab olish
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

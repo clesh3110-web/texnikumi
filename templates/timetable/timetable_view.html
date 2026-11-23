@@ -1,0 +1,127 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load custom_tags %}
+
+{% block title %}Haftalik Dars Jadvali — Guliston 1-son texnikumi{% endblock %}
+
+{% block content %}
+<div class="bg-primary-custom text-white py-3 shadow-sm mb-4">
+    <div class="container d-flex justify-content-between align-items-center flex-wrap gap-2">
+        <div class="d-flex align-items-center gap-3">
+            <a href="{% url 'accounts:dashboard_redirect' %}" class="btn btn-outline-light btn-sm">
+                <i class="bi bi-arrow-left"></i> Panelga qaytish
+            </a>
+            <h4 class="fw-bold mb-0"><i class="bi bi-clock-history me-2 text-info"></i> Haftalik Dars Jadvali</h4>
+        </div>
+        <div>
+            <span class="badge bg-info text-dark">Fan nomini bosib elektron kitobni o‘qishingiz mumkin</span>
+        </div>
+    </div>
+</div>
+
+<div class="container py-2">
+    {% if messages %}
+        {% for m in messages %}
+            <div class="alert alert-{{ m.tags }} alert-dismissible fade show small" role="alert">
+                {{ m }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+        {% endfor %}
+    {% endif %}
+
+    <!-- KITOB MAVJUD BO'LMAGANDA CHIQADIGAN SO'ROV BLOKI (Section 17) -->
+    {% if request.GET.missing_book_subject %}
+    <div class="card border-warning shadow-sm rounded-4 p-4 bg-warning-subtle mb-4">
+        <div class="d-flex justify-content-between align-items-center flex-wrap gap-3">
+            <div>
+                <h5 class="fw-bold text-dark mb-1"><i class="bi bi-exclamation-triangle-fill text-warning me-2"></i> Elektron kitob hali yuklanmagan</h5>
+                <p class="text-secondary small mb-0">Ushbu fan uchun adabiyot bazaga joylashtirilmagan. Kutubxona mas'ullariga kitobni so‘rash bo‘yicha murojaat yuborishingiz mumkin.</p>
+            </div>
+            <div>
+                <a href="{% url 'timetable:request_book' request.GET.missing_book_subject %}" class="btn btn-primary-custom px-4 fw-bold">
+                    <i class="bi bi-send-check me-1"></i> Kitob so‘rovini yuborish
+                </a>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- GURUHNI TANLASH (Admin/O'qituvchilar uchun) -->
+    {% if not request.user.is_student %}
+    <div class="card border-0 shadow-sm rounded-4 p-3 bg-white mb-4">
+        <form method="get" class="row g-2 align-items-center">
+            <div class="col-md-9">
+                <select name="group" class="form-select bg-light" onchange="this.form.submit()">
+                    {% for g in groups %}
+                        <option value="{{ g.id }}" {% if selected_group.id == g.id %}selected{% endif %}>{{ g.name }} ({{ g.direction }})</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="col-md-3">
+                <button type="submit" class="btn btn-primary-custom w-100">
+                    <i class="bi bi-funnel-fill me-1"></i> Jadvalni ko‘rish
+                </button>
+            </div>
+        </form>
+    </div>
+    {% endif %}
+
+    {% if selected_group %}
+    <!-- HAFTALIK JADVAL GRIDI -->
+    <div class="card border-0 shadow-sm rounded-4 p-4 bg-white mb-5">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+            <div>
+                <h5 class="fw-bold text-dark mb-0">{{ selected_group.name }} guruhi haftalik dars jadvali</h5>
+                <small class="text-muted">{{ selected_group.direction }} | 2024-2025 o‘quv yili (1-semestr)</small>
+            </div>
+        </div>
+
+        <div class="table-responsive">
+            <table class="table table-bordered align-middle text-center small mb-0">
+                <thead class="table-light">
+                    <tr>
+                        <th style="width: 130px;">Juftlik / Vaqt</th>
+                        {% for day_num, day_name in weekdays %}
+                            <th>{{ day_name }}</th>
+                        {% endfor %}
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for pair_num, pair_name in pairs %}
+                    <tr>
+                        <td class="fw-bold bg-light text-start py-3">
+                            <span class="d-block text-primary">{{ pair_num }}-juftlik</span>
+                            <small class="text-muted" style="font-size: 0.72rem;">{{ pair_name }}</small>
+                        </td>
+
+                        {% for day_num, day_name in weekdays %}
+                        <td class="p-2" style="width: 14%;">
+                            {% with item=timetable_matrix|dict_lookup:day_num|dict_lookup:pair_num %}
+                            {% if item %}
+                                <div class="p-2 rounded-3 border bg-light h-100 text-start shadow-sm position-relative">
+                                    <!-- Fan nomini bosganda tegishli kitob ochiladi (Section 17) -->
+                                    <a href="{% url 'timetable:timetable_book_action' item.id %}" class="fw-bold text-primary text-decoration-none d-block mb-1 hover-underline" title="Elektron kitobni ochish">
+                                        <i class="bi bi-book me-1"></i> {{ item.assignment.subject.name }}
+                                    </a>
+                                    <div class="small text-dark" style="font-size: 0.75rem;">
+                                        <i class="bi bi-person me-1"></i> {{ item.assignment.teacher.user.get_full_name_uz }}
+                                    </div>
+                                    <div class="badge bg-secondary-subtle text-dark border mt-1" style="font-size: 0.68rem;">
+                                        <i class="bi bi-geo-alt me-1"></i> {{ item.room }}
+                                    </div>
+                                </div>
+                            {% else %}
+                                <span class="text-muted opacity-25">—</span>
+                            {% endif %}
+                            {% endwith %}
+                        </td>
+                        {% endfor %}
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

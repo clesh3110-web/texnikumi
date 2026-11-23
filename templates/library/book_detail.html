@@ -1,0 +1,62 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ book.title }} — Elektron Kutubxona{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="mb-3">
+        <a href="{% url 'library:catalog' %}" class="btn btn-outline-secondary btn-sm">
+            <i class="bi bi-arrow-left me-1"></i> Kutubxonaga qaytish
+        </a>
+    </div>
+
+    <div class="card border-0 shadow-sm rounded-4 p-4 p-md-5 bg-white mb-4">
+        <div class="row g-4">
+            <div class="col-md-4 text-center">
+                <div class="rounded-4 bg-primary-subtle p-4 d-flex align-items-center justify-content-center shadow-sm" style="min-height: 260px;">
+                    {% if book.cover_image %}
+                        <img src="{{ book.cover_image.url }}" alt="{{ book.title }}" class="img-fluid rounded shadow-sm">
+                    {% else %}
+                        <i class="bi bi-book-half text-primary" style="font-size: 5rem;"></i>
+                    {% endif %}
+                </div>
+            </div>
+
+            <div class="col-md-8">
+                <span class="badge bg-primary px-3 py-1 mb-2">{{ book.subject.name|default:"Umumiy adabiyot" }}</span>
+                <h3 class="fw-bold text-dark mb-2">{{ book.title }}</h3>
+                <h6 class="text-muted mb-4"><i class="bi bi-person-fill me-1"></i> Muallif: <strong>{{ book.author }}</strong></h6>
+
+                <div class="row g-2 mb-4 small text-secondary">
+                    <div class="col-sm-4 border-end">
+                        <span class="text-muted d-block">Nashr yili:</span>
+                        <strong class="text-dark">{{ book.published_year|default:"Noma'lum" }}</strong>
+                    </div>
+                    <div class="col-sm-4 border-end">
+                        <span class="text-muted d-block">ISBN kodi:</span>
+                        <strong class="text-dark">{{ book.isbn|default:"—" }}</strong>
+                    </div>
+                    <div class="col-sm-4">
+                        <span class="text-muted d-block">Yuklab olingan:</span>
+                        <strong class="text-dark">{{ book.downloads_count }} marta</strong>
+                    </div>
+                </div>
+
+                <div class="mb-4">
+                    <h6 class="fw-bold text-dark">Kitob tavsifi:</h6>
+                    <p class="text-secondary small">{{ book.description|default:"Tavsif mavjud emas." }}</p>
+                </div>
+
+                <div class="d-flex flex-wrap gap-2">
+                    <a href="{{ book.pdf_file.url }}" target="_blank" class="btn btn-primary-custom px-4">
+                        <i class="bi bi-file-earmark-pdf me-1"></i> Brauzerda o‘qish
+                    </a>
+                    <a href="?download=1" class="btn btn-outline-success px-4">
+                        <i class="bi bi-download me-1"></i> Yuklab olish
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

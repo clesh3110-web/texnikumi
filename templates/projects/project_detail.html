@@ -1,0 +1,114 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ project.title }} — Guliston 1-son texnikumi{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="row justify-content-center">
+        <div class="col-lg-10">
+            <div class="mb-3 d-flex justify-content-between align-items-center">
+                <a href="{% url 'projects:projects_list' %}" class="btn btn-outline-secondary btn-sm rounded-pill">
+                    <i class="bi bi-arrow-left me-1"></i> Barcha loyihalarga qaytish
+                </a>
+                <span class="badge {% if project.status == 'APPROVED' or project.status == 'COMPLETED' %}bg-success{% elif project.status == 'REVIEW' %}bg-warning text-dark{% else %}bg-info text-dark{% endif %} px-3 py-2 fs-6">
+                    {{ project.get_status_display }}
+                </span>
+            </div>
+
+            <!-- ASOSIY KARTA -->
+            <div class="card border-0 shadow-sm rounded-4 overflow-hidden mb-4">
+                <div class="p-4 bg-primary-custom text-white">
+                    <span class="badge bg-light text-dark fw-bold mb-2">{{ project.get_category_display }}</span>
+                    <h3 class="fw-bold mb-2">{{ project.title }}</h3>
+                    <div class="d-flex flex-wrap gap-4 text-white-50 small">
+                        <span><i class="bi bi-person-fill text-info me-1"></i> Muallif: <strong>{{ project.creator.get_full_name_uz }}</strong></span>
+                        {% if project.group %}
+                        <span><i class="bi bi-diagram-3 text-warning me-1"></i> Guruh: {{ project.group.name }}</span>
+                        {% endif %}
+                        {% if project.mentor %}
+                        <span><i class="bi bi-award text-success me-1"></i> Ustoz: {{ project.mentor.user.get_full_name_uz }}</span>
+                        {% endif %}
+                        <span><i class="bi bi-calendar text-light me-1"></i> {{ project.created_at|date:"d.m.Y" }}</span>
+                    </div>
+                </div>
+
+                <div class="card-body p-4">
+                    <h5 class="fw-bold text-dark mb-3">Loyiha haqida batafsil ma'lumot</h5>
+                    <div class="fs-6 lh-lg text-dark mb-4" style="white-space: pre-wrap;">{{ project.description }}</div>
+
+                    <!-- FAYL VA HAVOLALAR -->
+                    <div class="d-flex flex-wrap gap-3 p-3 bg-light rounded-4 mb-3">
+                        {% if project.project_url %}
+                        <a href="{{ project.project_url }}" target="_blank" class="btn btn-dark btn-sm fw-bold px-3">
+                            <i class="bi bi-github me-1"></i> Loyiha kodi / Havola
+                        </a>
+                        {% endif %}
+                        {% if project.presentation_file %}
+                        <a href="{{ project.presentation_file.url }}" target="_blank" class="btn btn-outline-primary btn-sm fw-bold px-3" download>
+                            <i class="bi bi-file-earmark-pdf-fill me-1"></i> Taqdimotni yuklab olish
+                        </a>
+                        {% endif %}
+                    </div>
+
+                    <!-- ADMIN / MENTOR STATUS O'ZGARTIRISH -->
+                    {% if can_moderate %}
+                    <div class="p-3 bg-warning-subtle border border-warning rounded-4 mt-4">
+                        <form method="post" action="{% url 'projects:project_status_update' project.id %}" class="d-flex align-items-center gap-3 flex-wrap">
+                            {% csrf_token %}
+                            <label class="fw-bold text-dark mb-0"><i class="bi bi-shield-check text-primary me-1"></i> Loyiha holatini boshqarish:</label>
+                            <select name="status" class="form-select form-select-sm" style="width: auto;">
+                                {% for code, label in statuses %}
+                                <option value="{{ code }}" {% if project.status == code %}selected{% endif %}>{{ label }}</option>
+                                {% endfor %}
+                            </select>
+                            <button type="submit" class="btn btn-primary btn-sm fw-bold">Saqlash</button>
+                        </form>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- FIKRLAR VA MUHOKAMA (DISCUSSIONS) -->
+            <div class="card border-0 shadow-sm rounded-4 p-4">
+                <h5 class="fw-bold text-dark mb-3">
+                    <i class="bi bi-chat-left-text-fill text-primary me-2"></i>Loyiha muhokamasi ({{ comments.count }} ta fikr)
+                </h5>
+
+                <!-- FIKR QOLDIRISH FORMASI -->
+                {% if user.is_authenticated %}
+                <form method="post" class="mb-4">
+                    {% csrf_token %}
+                    <div class="mb-2">
+                        <textarea name="comment" class="form-control" rows="3" placeholder="Ushbu loyiha bo‘yicha savol, tavsiya yoki fikringizni bildiring..." required></textarea>
+                    </div>
+                    <div class="text-end">
+                        <button type="submit" class="btn btn-primary btn-sm fw-bold px-4">
+                            <i class="bi bi-chat-dots-fill me-1"></i> Fikr yuborish
+                        </button>
+                    </div>
+                </form>
+                {% else %}
+                <div class="alert alert-light border small text-center mb-4">
+                    Muhokamada qatnashish uchun <a href="{% url 'accounts:login' %}?next={{ request.path }}" class="fw-bold">tizimga kiring</a>.
+                </div>
+                {% endif %}
+
+                <!-- FIKRLAR RO'YXATI -->
+                <div class="d-flex flex-column gap-3">
+                    {% for c in comments %}
+                    <div class="p-3 rounded-3 bg-light border">
+                        <div class="d-flex justify-content-between align-items-center mb-1">
+                            <strong class="text-dark">{{ c.author.get_full_name_uz }} <small class="text-muted fw-normal">({{ c.author.get_role_display }})</small></strong>
+                            <small class="text-muted">{{ c.created_at|date:"d.m.Y H:i" }}</small>
+                        </div>
+                        <div class="text-dark small" style="white-space: pre-wrap;">{{ c.comment }}</div>
+                    </div>
+                    {% empty %}
+                    <p class="text-muted small text-center py-3 mb-0">Hozircha birorta ham fikr bildirilmagan. Birinchi bo‘lib o‘z fikringizni yozing!</p>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

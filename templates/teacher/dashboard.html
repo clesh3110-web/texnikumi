@@ -1,0 +1,139 @@
+{% extends 'teacher/base_teacher.html' %}
+
+{% block title %}O‘qituvchi Boshqaruv Kabineti — Guliston 1-son texnikumi{% endblock %}
+
+{% block teacher_content %}
+<div class="card border-0 shadow-sm rounded-4 p-4 bg-primary-custom text-white mb-4">
+    <div class="d-flex justify-content-between align-items-center flex-wrap gap-3">
+        <div>
+            <span class="badge bg-info text-dark px-3 py-1 fw-bold mb-2">{{ teacher.degree }}</span>
+            <h3 class="fw-bold mb-1">Xush kelibsiz, {{ teacher.user.get_full_name_uz }}!</h3>
+            <p class="text-white-50 small mb-0">
+                <i class="bi bi-building me-1"></i> {{ teacher.department }} | 
+                <i class="bi bi-geo-alt me-1"></i> Xona: {{ teacher.office_room }} |
+                <i class="bi bi-telephone me-1"></i> {{ teacher.user.phone|default:"Telefon kiritilmagan" }}
+            </p>
+        </div>
+        <div class="d-flex gap-2">
+            <a href="{% url 'teachers:teacher_groups' %}" class="btn btn-light fw-bold px-4">
+                <i class="bi bi-diagram-3-fill me-1 text-primary"></i> Mening Guruhlarim
+            </a>
+        </div>
+    </div>
+</div>
+
+<!-- 8 TA ASOSIY STATISTIK KARTALAR -->
+<div class="row g-3 mb-4">
+    <div class="col-sm-6 col-xl-3">
+        <div class="card stat-card bg-white p-3 h-100 border-start border-primary border-4">
+            <span class="text-muted small fw-semibold d-block">Mening Guruhlarim</span>
+            <h3 class="fw-bold mb-0 text-dark">{{ total_groups_count }} ta</h3>
+            <small class="text-muted" style="font-size: 0.72rem;">Dars biriktirilgan</small>
+        </div>
+    </div>
+    <div class="col-sm-6 col-xl-3">
+        <div class="card stat-card bg-white p-3 h-100 border-start border-info border-4">
+            <span class="text-muted small fw-semibold d-block">Mening Fanlarim</span>
+            <h3 class="fw-bold mb-0 text-dark">{{ total_subjects_count }} ta</h3>
+            <small class="text-muted" style="font-size: 0.72rem;">Mutaxassislik fanlari</small>
+        </div>
+    </div>
+    <div class="col-sm-6 col-xl-3">
+        <div class="card stat-card bg-white p-3 h-100 border-start border-success border-4">
+            <span class="text-muted small fw-semibold d-block">Jami O‘quvchilarim</span>
+            <h3 class="fw-bold mb-0 text-dark">{{ total_students_count }} nafar</h3>
+            <small class="text-muted" style="font-size: 0.72rem;">Guruhlarim bo‘yicha</small>
+        </div>
+    </div>
+    <div class="col-sm-6 col-xl-3">
+        <div class="card stat-card bg-white p-3 h-100 border-start border-warning border-4">
+            <span class="text-muted small fw-semibold d-block">Bugungi Darslar</span>
+            <h3 class="fw-bold mb-0 text-dark">4 juftlik</h3>
+            <small class="text-muted" style="font-size: 0.72rem;">Dars jadvali bo‘yicha</small>
+        </div>
+    </div>
+    <div class="col-sm-6 col-xl-3">
+        <div class="card stat-card bg-white p-3 h-100 border-start border-primary border-4">
+            <span class="text-muted small fw-semibold d-block">O‘rtacha Baholar</span>
+            <h3 class="fw-bold mb-0 text-primary">{{ average_grade }} ball</h3>
+            <small class="text-muted" style="font-size: 0.72rem;">5 ballik tizimda</small>
+        </div>
+    </div>
+    <div class="col-sm-6 col-xl-3">
+        <div class="card stat-card bg-white p-3 h-100 border-start border-success border-4">
+            <span class="text-muted small fw-semibold d-block">Davomat Ko‘rsatkichi</span>
+            <h3 class="fw-bold mb-0 text-success">{{ attendance_rate }}%</h3>
+            <small class="text-muted" style="font-size: 0.72rem;">Mening darslarimda</small>
+        </div>
+    </div>
+    <div class="col-sm-6 col-xl-3">
+        <div class="card stat-card bg-white p-3 h-100 border-start border-danger border-4">
+            <span class="text-muted small fw-semibold d-block">Tekshirilmagan Vazifalar</span>
+            <h3 class="fw-bold mb-0 text-danger">{{ pending_assignments_count }} ta</h3>
+            <small class="text-muted" style="font-size: 0.72rem;">Yangi topshirilgan</small>
+        </div>
+    </div>
+    <div class="col-sm-6 col-xl-3">
+        <div class="card stat-card bg-white p-3 h-100 border-start border-info border-4">
+            <span class="text-muted small fw-semibold d-block">Yangi Xabarlar</span>
+            <h3 class="fw-bold mb-0 text-info">{{ unread_messages_count }} ta</h3>
+            <small class="text-muted" style="font-size: 0.72rem;">O‘quvchilar va adminga</small>
+        </div>
+    </div>
+</div>
+
+<!-- MENING GURUHLARIM VA BIRIKTIRISHLAR -->
+<div class="row g-4 mb-4">
+    <div class="col-lg-8">
+        <div class="card border-0 shadow-sm rounded-4 p-4 bg-white h-100">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <h5 class="fw-bold mb-0 text-dark"><i class="bi bi-diagram-3 me-2 text-primary"></i> Dars Beradigan Guruhlarim</h5>
+                <span class="badge bg-light text-secondary border">Faqat ruxsat berilgan</span>
+            </div>
+
+            <div class="row g-3">
+                {% for g in my_groups %}
+                <div class="col-md-6">
+                    <div class="p-3 rounded-3 border bg-light h-100">
+                        <div class="d-flex justify-content-between align-items-start mb-2">
+                            <span class="badge bg-primary px-3 py-1 fs-6">{{ g.name }}</span>
+                            <span class="badge bg-light text-muted border">{{ g.get_course_display }}</span>
+                        </div>
+                        <h6 class="fw-bold text-dark mb-1">{{ g.direction }}</h6>
+                        <small class="text-muted d-block mb-3"><i class="bi bi-people me-1"></i> {{ g.total_students_count }} nafar o‘quvchi</small>
+                        
+                        <div class="d-flex gap-2">
+                            <a href="{% url 'teachers:teacher_group_detail' g.id %}" class="btn btn-outline-primary btn-sm flex-grow-1">
+                                <i class="bi bi-eye me-1"></i> Guruhni ko‘rish
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                {% empty %}
+                <div class="col-12 text-center text-muted py-4">Sizga hali guruh biriktirilmagan.</div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+
+    <!-- MENING FANLARIM -->
+    <div class="col-lg-4">
+        <div class="card border-0 shadow-sm rounded-4 p-4 bg-white h-100">
+            <h5 class="fw-bold mb-3 text-dark"><i class="bi bi-book me-2 text-primary"></i> Mening Fanlarim</h5>
+            <div class="d-flex flex-column gap-2">
+                {% for a in assignments %}
+                <div class="p-3 rounded-3 border bg-light">
+                    <div class="fw-bold text-primary">{{ a.subject.name }}</div>
+                    <div class="d-flex justify-content-between align-items-center mt-2 small text-muted">
+                        <span>Guruh: <strong>{{ a.group.name }}</strong></span>
+                        <span class="badge bg-light text-dark border">{{ a.subject.total_hours }} soat</span>
+                    </div>
+                </div>
+                {% empty %}
+                <div class="text-center text-muted py-3">Fanlar biriktirilmagan.</div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

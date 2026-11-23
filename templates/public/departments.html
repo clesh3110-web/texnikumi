@@ -1,0 +1,37 @@
+{% extends 'base.html' %}
+{% block title %}Ta'lim yo'nalishlari — Guliston 1-son texnikumi{% endblock %}
+
+{% block content %}
+<nav class="navbar navbar-expand-lg navbar-dark bg-primary-custom py-3">
+    <div class="container">
+        <a class="navbar-brand fw-bold" href="{% url 'core:home' %}"><i class="bi bi-arrow-left me-2"></i> Bosh sahifaga qaytish</a>
+    </div>
+</nav>
+
+<div class="container py-5">
+    <div class="text-center mb-5">
+        <span class="badge bg-primary-subtle text-primary px-3 py-2 rounded-pill fw-semibold">Mutaxassisliklar</span>
+        <h2 class="fw-bold mt-2">Texnikum Ta'lim Yo‘nalishlari</h2>
+        <p class="text-muted">Mehnat bozorida eng ko‘p talab qilinayotgan professional kasb yo‘nalishlari.</p>
+    </div>
+
+    <div class="row g-4">
+        {% for d in directions %}
+        <div class="col-lg-4 col-md-6">
+            <div class="card h-100 border-0 shadow-sm rounded-4 p-4 d-flex flex-column">
+                <div class="rounded-circle bg-primary-subtle text-primary p-3 mb-3" style="width: 60px; height: 60px; display: flex; align-items: center; justify-content: center;">
+                    <i class="bi {{ d.icon }} fs-3"></i>
+                </div>
+                <h5 class="fw-bold mb-1">{{ d.name }}</h5>
+                <span class="badge bg-light text-secondary border align-self-start mb-3">Kodi: {{ d.code }}</span>
+                <p class="text-muted small mb-4">{{ d.description }}</p>
+                <div class="mt-auto border-top pt-3 d-flex justify-content-between align-items-center">
+                    <span class="small text-muted"><i class="bi bi-clock me-1"></i> {{ d.duration }}</span>
+                    <a href="{% url 'core:contact' %}" class="btn btn-outline-primary btn-sm rounded-pill px-3">Ariza topshirish</a>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}

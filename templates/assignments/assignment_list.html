@@ -1,0 +1,79 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Uy Vazifalari — Guliston 1-son texnikumi{% endblock %}
+
+{% block content %}
+<div class="bg-primary-custom text-white py-3 shadow-sm mb-4">
+    <div class="container d-flex justify-content-between align-items-center flex-wrap gap-2">
+        <div class="d-flex align-items-center gap-3">
+            <a href="{% url 'accounts:dashboard_redirect' %}" class="btn btn-outline-light btn-sm">
+                <i class="bi bi-arrow-left"></i> Panelga qaytish
+            </a>
+            <h4 class="fw-bold mb-0"><i class="bi bi-clipboard2-check-fill me-2 text-info"></i> Uy Vazifalari va Topshiriqlar</h4>
+        </div>
+        <div>
+            {% if is_teacher %}
+                <a href="{% url 'assignments:assignment_create' %}" class="btn btn-primary-custom btn-sm">
+                    <i class="bi bi-plus-circle me-1"></i> Yangi vazifa yaratish
+                </a>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<div class="container py-2">
+    {% if messages %}
+        {% for m in messages %}
+            <div class="alert alert-{{ m.tags }} alert-dismissible fade show small" role="alert">
+                {{ m }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+        {% endfor %}
+    {% endif %}
+
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h5 class="fw-bold text-dark mb-0">Faol Topshiriqlar Ro‘yxati</h5>
+    </div>
+
+    <div class="row g-4 mb-5">
+        {% for task in assignments %}
+        <div class="col-md-6 col-lg-4">
+            <div class="card border-0 shadow-sm rounded-4 p-4 h-100 bg-white d-flex flex-column">
+                <div class="d-flex justify-content-between align-items-start mb-2">
+                    <span class="badge bg-primary px-3 py-1">{{ task.assignment.group.name }}</span>
+                    <span class="badge bg-light text-secondary border">Maksimal: {{ task.max_score }} ball</span>
+                </div>
+
+                <h6 class="fw-bold text-dark mb-1">{{ task.title }}</h6>
+                <small class="text-primary fw-semibold d-block mb-2">{{ task.assignment.subject.name }}</small>
+                
+                <p class="text-secondary small mb-3 flex-grow-1">{{ task.description|truncatewords:18 }}</p>
+
+                <div class="small text-muted border-top pt-2 mb-3">
+                    <div class="d-flex justify-content-between py-1">
+                        <span><i class="bi bi-clock me-1"></i> Dedlayn:</span>
+                        <strong class="text-danger">{{ task.due_date|date:"d.m.Y H:i" }}</strong>
+                    </div>
+                    {% if is_teacher %}
+                    <div class="d-flex justify-content-between py-1">
+                        <span><i class="bi bi-send-check me-1"></i> Topshirganlar:</span>
+                        <strong class="text-dark">{{ task.submissions_count }} nafar</strong>
+                    </div>
+                    {% endif %}
+                </div>
+
+                <a href="{% url 'assignments:assignment_detail' task.id %}" class="btn btn-outline-primary btn-sm w-100 mt-auto">
+                    <i class="bi bi-eye me-1"></i> Topshiriqni ko‘rish
+                </a>
+            </div>
+        </div>
+        {% empty %}
+        <div class="col-12 text-center text-muted py-5">
+            <i class="bi bi-clipboard-x fs-1 d-block mb-2 text-secondary opacity-50"></i>
+            Hozircha faol uy vazifalari mavjud emas.
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,221 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ task.title }} — Topshiriq tafsilotlari{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="mb-3">
+        <a href="{% url 'assignments:assignment_list' %}" class="btn btn-outline-secondary btn-sm">
+            <i class="bi bi-arrow-left me-1"></i> Topshiriqlarga qaytish
+        </a>
+    </div>
+
+    {% if messages %}
+        {% for m in messages %}
+            <div class="alert alert-{{ m.tags }} alert-dismissible fade show small" role="alert">
+                {{ m }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+        {% endfor %}
+    {% endif %}
+
+    <!-- TOPSHIRIQ TAVSIFI -->
+    <div class="card border-0 shadow-sm rounded-4 p-4 p-md-5 bg-white mb-4">
+        <div class="d-flex justify-content-between align-items-start flex-wrap gap-2 mb-3">
+            <div>
+                <span class="badge bg-primary px-3 py-1 mb-2">{{ task.assignment.group.name }} | {{ task.assignment.subject.name }}</span>
+                <h3 class="fw-bold text-dark mb-1">{{ task.title }}</h3>
+                <small class="text-muted"><i class="bi bi-person me-1"></i> O‘qituvchi: {{ task.assignment.teacher.user.get_full_name_uz }}</small>
+            </div>
+            <div class="text-end">
+                <span class="badge bg-danger px-3 py-2 fs-6">Dedlayn: {{ task.due_date|date:"d.m.Y H:i" }}</span>
+            </div>
+        </div>
+
+        <hr class="my-3">
+
+        <div class="fs-6 text-secondary mb-4 lh-lg">
+            {{ task.description|linebreaks }}
+        </div>
+
+        {% if task.attachment_file %}
+        <div class="p-3 rounded-3 bg-light border d-inline-flex align-items-center gap-3">
+            <i class="bi bi-file-earmark-arrow-down text-primary fs-3"></i>
+            <div>
+                <strong class="text-dark d-block">Topshiriq uchun biriktirilgan fayl</strong>
+                <small class="text-muted">Qo‘llanma yoki boshlang‘ich kodlar</small>
+            </div>
+            <a href="{{ task.attachment_file.url }}" target="_blank" class="btn btn-primary-custom btn-sm ms-3">
+                <i class="bi bi-download me-1"></i> Yuklab olish
+            </a>
+        </div>
+        {% endif %}
+    </div>
+
+    {% if is_student %}
+    <!-- O'QUVCHI UCHUN: TOPSHIRISH VA HOLAT -->
+    <div class="card border-0 shadow-sm rounded-4 p-4 bg-white mb-4">
+        <h5 class="fw-bold text-dark mb-3"><i class="bi bi-send-check me-2 text-primary"></i> Mening Yechimim va Natija</h5>
+
+        {% if student_submission.status != 'NEW' %}
+            <div class="alert alert-{% if student_submission.status == 'GRADED' %}success{% elif student_submission.status == 'REVISE' %}warning{% else %}info{% endif %} border-0 rounded-3 p-3 mb-4">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <strong class="d-block">Holat: {{ student_submission.get_status_display }}</strong>
+                        <small>Yuborilgan vaqt: {{ student_submission.submitted_at|date:"d.m.Y H:i" }}</small>
+                    </div>
+                    {% if student_submission.score %}
+                        <div class="text-end">
+                            <span class="badge bg-success fs-5 px-3 py-2">Baho: {{ student_submission.score }} / 5 ball</span>
+                        </div>
+                    {% endif %}
+                </div>
+                {% if student_submission.teacher_feedback %}
+                    <div class="mt-3 border-top pt-2">
+                        <strong class="d-block small text-dark"><i class="bi bi-chat-quote me-1"></i> O‘qituvchi taqrizi:</strong>
+                        <p class="mb-0 small">{{ student_submission.teacher_feedback }}</p>
+                    </div>
+                {% endif %}
+            </div>
+        {% endif %}
+
+        {% if student_submission.status == 'NEW' or student_submission.status == 'REVISE' %}
+        <form method="post" enctype="multipart/form-data">
+            {% csrf_token %}
+            <input type="hidden" name="submit_solution" value="1">
+            <div class="mb-3">
+                <label class="form-label small fw-semibold">Javob matni yoki havola (GitHub/Docs):</label>
+                <textarea name="submission_text" class="form-control" rows="4" placeholder="Javobingizni yoki loyiha havolasini yozing...">{{ student_submission.submission_text }}</textarea>
+            </div>
+            <div class="mb-4">
+                <label class="form-label small fw-semibold">Yechim fayli (PDF, ZIP, Rasm):</label>
+                <input type="file" name="submission_file" class="form-control">
+            </div>
+            <button type="submit" class="btn btn-primary-custom px-4 py-2">
+                <i class="bi bi-cloud-arrow-up-fill me-1"></i> Topshiriqni yuborish
+            </button>
+        </form>
+        {% endif %}
+    </div>
+
+    {% else %}
+    <!-- O'QITUVCHI UCHUN: TOPSHIRILGAN ISHLARNI TEKSHIRISH -->
+    <div class="card border-0 shadow-sm rounded-4 p-4 bg-white mb-4">
+        <h5 class="fw-bold text-dark mb-3"><i class="bi bi-people me-2 text-primary"></i> Talabalarning Yuborilgan Ishlari</h5>
+
+        <div class="table-responsive">
+            <table class="table table-hover align-middle small">
+                <thead class="table-light">
+                    <tr>
+                        <th>O‘quvchi</th>
+                        <th>Yuborilgan sana</th>
+                        <th>Fayl</th>
+                        <th>Holati</th>
+                        <th>Baho</th>
+                        <th class="text-end">Tekshirish</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for sub in all_submissions %}
+                    <tr>
+                        <td>
+                            <strong class="text-dark d-block">{{ sub.student.user.get_full_name_uz }}</strong>
+                            <small class="text-muted">{{ sub.student.student_id_number|default:"—" }}</small>
+                        </td>
+                        <td>{{ sub.submitted_at|date:"d.m.Y H:i" }}</td>
+                        <td>
+                            {% if sub.submission_file %}
+                                <a href="{{ sub.submission_file.url }}" target="_blank" class="btn btn-outline-secondary btn-sm py-0">
+                                    <i class="bi bi-file-earmark-arrow-down me-1"></i> Fayl
+                                </a>
+                            {% else %}
+                                <span class="text-muted">Faylsiz</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            <span class="badge {% if sub.status == 'GRADED' %}bg-success-subtle text-success{% elif sub.status == 'REVISE' %}bg-warning-subtle text-dark{% else %}bg-info-subtle text-info{% endif %}">
+                                {{ sub.get_status_display }}
+                            </span>
+                        </td>
+                        <td>
+                            {% if sub.score %}
+                                <span class="badge bg-success fs-6">{{ sub.score }} ball</span>
+                            {% else %}
+                                <span class="text-muted">—</span>
+                            {% endif %}
+                        </td>
+                        <td class="text-end">
+                            <button class="btn btn-outline-primary btn-sm" onclick="openGradeSubmissionModal('{{ sub.id }}', '{{ sub.student.user.get_full_name_uz }}', '{{ sub.score|default:'' }}', '{{ sub.teacher_feedback|escapejs }}')">
+                                <i class="bi bi-pencil-square me-1"></i> Baholash
+                            </button>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="6" class="text-center text-muted py-4">Hali hech kim vazifani topshirmadi.</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+    {% endif %}
+</div>
+
+<!-- O'QITUVCHI BAHOLASH MODAL OYNASI -->
+<div class="modal fade" id="gradeSubmissionModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content rounded-4 border-0 shadow">
+            <form method="post">
+                {% csrf_token %}
+                <input type="hidden" name="grade_submission" value="1">
+                <input type="hidden" name="submission_id" id="modalSubmissionId">
+                <div class="modal-header bg-primary-custom text-white">
+                    <h5 class="modal-title fw-bold" id="modalStudentName">Vazifani baholash</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body p-4">
+                    <div class="mb-3">
+                        <label class="form-label small fw-semibold">Qaror turi:</label>
+                        <select name="action_type" class="form-select" id="modalActionType">
+                            <option value="GRADED">Tekshirildi va baholandi</option>
+                            <option value="REVISE">Qayta ishlashga qaytarish</option>
+                        </select>
+                    </div>
+                    <div class="mb-3" id="scoreFieldGroup">
+                        <label class="form-label small fw-semibold">Baho (1 dan 5 gacha) *:</label>
+                        <select name="score" class="form-select form-select-lg fw-bold text-primary" id="modalScore">
+                            <option value="5">5 — A'lo</option>
+                            <option value="4">4 — Yaxshi</option>
+                            <option value="3">3 — Qoniqarli</option>
+                            <option value="2">2 — Qoniqarsiz</option>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label small fw-semibold">O‘qituvchi taqrizi va izohi:</label>
+                        <textarea name="teacher_feedback" id="modalFeedback" class="form-control" rows="3" placeholder="Yechim bo‘yicha kamchiliklar yoki ijobiy fikrlaringizni yozing..."></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-light" data-bs-dismiss="modal">Bekor qilish</button>
+                    <button type="submit" class="btn btn-primary-custom px-4">Saqlash</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    function openGradeSubmissionModal(subId, studentName, score, feedback) {
+        document.getElementById('modalSubmissionId').value = subId;
+        document.getElementById('modalStudentName').innerText = studentName + " — Yechimni baholash";
+        if (score) {
+            document.getElementById('modalScore').value = score;
+        }
+        document.getElementById('modalFeedback').value = feedback || '';
+        new bootstrap.Modal(document.getElementById('gradeSubmissionModal')).show();
+    }
+</script>
+{% endblock %}

@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}O‘quvchi Kabineti — Guliston 1-son texnikumi{% endblock %}</title>
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="/static/css/main.css">
+    <link rel="stylesheet" href="/static/css/dashboard.css">
+    {% block extra_css %}{% endblock %}
+</head>
+<body>
+<div id="admin-wrapper">
+    <!-- O'QUVCHI SIDEBARI (12 TA BO'LIM) -->
+    <aside id="admin-sidebar">
+        <div class="sidebar-brand">
+            <a href="{% url 'students:student_dashboard' %}" class="d-flex align-items-center gap-2 text-white text-decoration-none">
+                <i class="bi bi-mortarboard-fill fs-4 text-info"></i>
+                <div class="lh-1">
+                    <span class="fw-bold d-block fs-6">GULISTON 1-TEXNIKUM</span>
+                    <small class="text-white-50" style="font-size: 0.72rem;">O‘QUVCHI KABINETI</small>
+                </div>
+            </a>
+        </div>
+
+        <div class="sidebar-menu">
+            <div class="text-uppercase text-white-50 fw-bold px-3 py-2" style="font-size: 0.7rem; letter-spacing: 0.5px;">O‘quvchi Menyu</div>
+            <nav class="nav flex-column">
+                <a class="nav-link {% if request.resolver_match.url_name == 'student_dashboard' %}active{% endif %}" href="{% url 'students:student_dashboard' %}">
+                    <i class="bi bi-grid-fill"></i> 1. Bosh sahifa
+                </a>
+                <a class="nav-link" href="{% url 'accounts:profile' %}">
+                    <i class="bi bi-person-bounding-box"></i> 2. Mening ma'lumotlarim
+                </a>
+                <a class="nav-link {% if request.resolver_match.url_name == 'student_grades' %}active{% endif %}" href="{% url 'journal:student_grades' %}">
+                    <i class="bi bi-award-fill"></i> 3. Baholarim
+                </a>
+                <a class="nav-link {% if request.resolver_match.url_name == 'student_attendance' %}active{% endif %}" href="{% url 'attendance:student_attendance' %}">
+                    <i class="bi bi-calendar-check-fill"></i> 4. Davomatim
+                </a>
+                <a class="nav-link {% if request.resolver_match.url_name == 'timetable_view' %}active{% endif %}" href="{% url 'timetable:timetable_view' %}">
+                    <i class="bi bi-clock-history"></i> 5. Dars jadvalim
+                </a>
+                <a class="nav-link {% if request.resolver_match.url_name == 'student_teachers' %}active{% endif %}" href="{% url 'students:student_teachers' %}">
+                    <i class="bi bi-person-badge-fill"></i> 6. O‘qituvchilarim
+                </a>
+                <a class="nav-link {% if request.resolver_match.url_name == 'assignment_list' %}active{% endif %}" href="{% url 'assignments:assignment_list' %}">
+                    <i class="bi bi-clipboard2-check-fill"></i> 7. Uy vazifalarim
+                </a>
+                <a class="nav-link {% if request.resolver_match.url_name == 'catalog' %}active{% endif %}" href="{% url 'library:catalog' %}">
+                    <i class="bi bi-collection-fill"></i> 8. Elektron kutubxona
+                </a>
+                <a class="nav-link {% if request.resolver_match.url_name == 'student_analytics' %}active{% endif %}" href="{% url 'students:student_analytics' %}">
+                    <i class="bi bi-graph-up-arrow"></i> 9. Reyting va Analitika
+                </a>
+                <a class="nav-link {% if request.resolver_match.url_name == 'documents_list' %}active{% endif %}" href="{% url 'documents:documents_list' %}">
+                    <i class="bi bi-file-earmark-medical-fill"></i> 10. Tibbiy hujjatlar
+                </a>
+                <a class="nav-link {% if request.resolver_match.url_name == 'inbox' %}active{% endif %}" href="{% url 'messaging:inbox' %}">
+                    <i class="bi bi-envelope-fill"></i> 11. Xabarlar
+                </a>
+                <a class="nav-link {% if request.resolver_match.url_name == 'projects_list' %}active{% endif %}" href="{% url 'projects:projects_list' %}">
+                    <i class="bi bi-lightbulb-fill"></i> 12. Loyihalarim
+                </a>
+                <a class="nav-link {% if request.resolver_match.url_name == 'event_list' %}active{% endif %}" href="{% url 'events:event_list' %}">
+                    <i class="bi bi-calendar-event-fill"></i> 13. Tadbirlar
+                </a>
+                <a class="nav-link {% if request.resolver_match.url_name == 'notifications_list' %}active{% endif %}" href="{% url 'notifications:notifications_list' %}">
+                    <i class="bi bi-bell-fill"></i> 14. Bildirishnomalar
+                </a>
+            </nav>
+        </div>
+    </aside>
+
+    <div id="admin-content">
+        <header id="admin-topbar">
+            <div class="d-flex align-items-center gap-3">
+                <button class="btn btn-outline-secondary btn-sm d-lg-none" id="sidebarToggle">
+                    <i class="bi bi-list fs-5"></i>
+                </button>
+                <div class="d-none d-md-block">
+                    <span class="badge bg-primary-subtle text-primary px-3 py-1 fw-bold">
+                        <i class="bi bi-backpack me-1"></i> {{ request.user.student_profile.group.name|default:"Guruhsiz" }} guruhi o‘quvchisi
+                    </span>
+                </div>
+            </div>
+
+            <div class="d-flex align-items-center gap-3">
+                <div class="dropdown">
+                    <a href="#" class="d-flex align-items-center gap-2 text-decoration-none dropdown-toggle" data-bs-toggle="dropdown">
+                        <div class="rounded-circle bg-primary text-white d-flex align-items-center justify-content-center" style="width: 38px; height: 38px;">
+                            <i class="bi bi-person-fill"></i>
+                        </div>
+                        <div class="d-none d-sm-block text-start lh-1">
+                            <span class="fw-bold d-block text-dark small">{{ request.user.get_full_name_uz|default:request.user.username }}</span>
+                            <small class="text-muted" style="font-size: 0.72rem;">{{ request.user.student_profile.student_id_number|default:"Talaba ID" }}</small>
+                        </div>
+                    </a>
+                    <ul class="dropdown-menu dropdown-menu-end shadow-sm border-0">
+                        <li><a class="dropdown-item" href="{% url 'accounts:profile' %}"><i class="bi bi-person me-2"></i>Mening profilim</a></li>
+                        <li><hr class="dropdown-divider"></li>
+                        <li><a class="dropdown-item text-danger" href="{% url 'accounts:logout' %}"><i class="bi bi-box-arrow-right me-2"></i>Chiqish</a></li>
+                    </ul>
+                </div>
+            </div>
+        </header>
+
+        <main class="p-4">
+            {% block student_content %}{% endblock %}
+        </main>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script src="/static/js/main.js"></script>
+<script src="/static/js/dashboard.js"></script>
+{% block extra_js %}{% endblock %}
+</body>
+</html>

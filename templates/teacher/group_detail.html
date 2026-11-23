@@ -1,0 +1,80 @@
+{% extends 'teacher/base_teacher.html' %}
+
+{% block title %}{{ group.name }} guruhi — O‘qituvchi Kabineti{% endblock %}
+
+{% block teacher_content %}
+<div class="mb-4">
+    <a href="{% url 'teachers:teacher_groups' %}" class="btn btn-outline-secondary btn-sm mb-2">
+        <i class="bi bi-arrow-left me-1"></i> Guruhlarga qaytish
+    </a>
+    <div class="d-flex justify-content-between align-items-center flex-wrap gap-2">
+        <div>
+            <h3 class="fw-bold mb-1 text-dark">{{ group.name }} — {{ group.direction }}</h3>
+            <p class="text-muted small mb-0">
+                {{ group.get_course_display }} | O‘quv yili: {{ group.academic_year }} | 
+                Jami o‘quvchilar: <strong>{{ students.count }} nafar</strong>
+            </p>
+        </div>
+        <div>
+            {% if is_curator %}
+                <span class="badge bg-success px-3 py-2 fs-6"><i class="bi bi-star-fill me-1"></i> Siz ushbu guruh rahbarisiz</span>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<div class="card border-0 shadow-sm rounded-4 p-4 bg-white mb-4">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h5 class="fw-bold mb-0 text-dark"><i class="bi bi-people me-2 text-primary"></i> Guruh O‘quvchilari</h5>
+        <small class="text-muted">O‘quvchi ismini bosib, uning batafsil profiliga o‘tishingiz mumkin</small>
+    </div>
+
+    <div class="table-responsive">
+        <table class="table table-hover align-middle">
+            <thead class="table-light small">
+                <tr>
+                    <th style="width: 40px;">#</th>
+                    <th>F.I.Sh (O‘quvchi)</th>
+                    <th>Talaba ID</th>
+                    <th>Telefon</th>
+                    <th>Ta'lim shakli</th>
+                    <th>Holati</th>
+                    <th class="text-end">Amallar</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for st in students %}
+                <tr>
+                    <td class="text-muted small">{{ forloop.counter }}</td>
+                    <td>
+                        <a href="{% url 'teachers:teacher_student_detail' st.id %}" class="fw-bold text-dark text-decoration-none hover-primary">
+                            {{ st.user.get_full_name_uz|default:st.user.username }}
+                        </a>
+                        <small class="text-muted d-block" style="font-size: 0.72rem;">@{{ st.user.username }}</small>
+                    </td>
+                    <td><span class="badge bg-light text-secondary border">{{ st.student_id_number|default:"—" }}</span></td>
+                    <td class="small">{{ st.user.phone|default:"—" }}</td>
+                    <td>
+                        {% if st.education_type == 'GRANT' %}
+                            <span class="badge bg-success-subtle text-success">Davlat granti</span>
+                        {% else %}
+                            <span class="badge bg-info-subtle text-info">To‘lov-shartnoma</span>
+                        {% endif %}
+                    </td>
+                    <td><span class="badge bg-success-subtle text-success">{{ st.get_status_display }}</span></td>
+                    <td class="text-end">
+                        <a href="{% url 'teachers:teacher_student_detail' st.id %}" class="btn btn-outline-primary btn-sm">
+                            <i class="bi bi-person-lines-fill me-1"></i> Profil
+                        </a>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="7" class="text-center text-muted py-4">Bu guruhda o‘quvchilar mavjud emas.</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

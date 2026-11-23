@@ -1,0 +1,95 @@
+{% extends 'base.html' %}
+{% block title %}Bog'lanish va Aloqa — Guliston 1-son texnikumi{% endblock %}
+
+{% block content %}
+<nav class="navbar navbar-expand-lg navbar-dark bg-primary-custom py-3">
+    <div class="container">
+        <a class="navbar-brand fw-bold" href="{% url 'core:home' %}"><i class="bi bi-arrow-left me-2"></i> Bosh sahifaga qaytish</a>
+    </div>
+</nav>
+
+<div class="container py-5">
+    <div class="row g-5">
+        <div class="col-lg-6">
+            <span class="badge bg-primary-subtle text-primary px-3 py-2 rounded-pill fw-semibold mb-2">Aloqa</span>
+            <h2 class="fw-bold mb-3">Biz bilan bog‘laning</h2>
+            <p class="text-muted mb-4">Savollaringiz, takliflaringiz yoki arizangiz bo‘lsa, quyidagi shaklni to‘ldiring yoki to‘g‘ridan-to‘g‘ri murojaat qiling.</p>
+
+            <div class="d-flex flex-column gap-3 mb-4">
+                <div class="d-flex gap-3 align-items-center">
+                    <div class="rounded-circle bg-primary-subtle text-primary p-3 d-flex align-items-center justify-content-center" style="width: 50px; height: 50px;">
+                        <i class="bi bi-geo-alt-fill fs-5"></i>
+                    </div>
+                    <div>
+                        <div class="fw-bold">Manzilimiz:</div>
+                        <div class="text-muted small">Sirdaryo viloyati, Guliston shahri, Sayxun ko‘chasi, 12-uy</div>
+                    </div>
+                </div>
+
+                <div class="d-flex gap-3 align-items-center">
+                    <div class="rounded-circle bg-primary-subtle text-primary p-3 d-flex align-items-center justify-content-center" style="width: 50px; height: 50px;">
+                        <i class="bi bi-telephone-fill fs-5"></i>
+                    </div>
+                    <div>
+                        <div class="fw-bold">Telefon:</div>
+                        <div class="text-muted small">+998 (67) 225-10-01, +998 (90) 111-00-01</div>
+                    </div>
+                </div>
+
+                <div class="d-flex gap-3 align-items-center">
+                    <div class="rounded-circle bg-primary-subtle text-primary p-3 d-flex align-items-center justify-content-center" style="width: 50px; height: 50px;">
+                        <i class="bi bi-envelope-fill fs-5"></i>
+                    </div>
+                    <div>
+                        <div class="fw-bold">Elektron pochta:</div>
+                        <div class="text-muted small">info@guliston-texnikum.uz</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-6">
+            <div class="card border-0 shadow-sm rounded-4 p-4 p-md-5 bg-white">
+                <h4 class="fw-bold mb-3">Murojaat qoldirish</h4>
+                {% if messages %}
+                    {% for m in messages %}
+                        <div class="alert alert-{{ m.tags }} alert-dismissible fade show small" role="alert">
+                            {{ m }}
+                            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                        </div>
+                    {% endfor %}
+                {% endif %}
+
+                <form method="post">
+                    {% csrf_token %}
+                    <div class="mb-3">
+                        <label class="form-label small fw-semibold">Ism va Familiyangiz *</label>
+                        <input type="text" name="full_name" class="form-control" placeholder="Masalan: Sardor Aliyev" required>
+                    </div>
+                    <div class="row g-2 mb-3">
+                        <div class="col-md-6">
+                            <label class="form-label small fw-semibold">Telefon raqamingiz *</label>
+                            <input type="text" name="phone" class="form-control" placeholder="+998901234567" required>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label small fw-semibold">Email manzilingiz</label>
+                            <input type="email" name="email" class="form-control" placeholder="misol@pochta.uz">
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label small fw-semibold">Murojaat mavzusi</label>
+                        <input type="text" name="subject" class="form-control" placeholder="Mavzuni kiriting">
+                    </div>
+                    <div class="mb-4">
+                        <label class="form-label small fw-semibold">Murojaat matni *</label>
+                        <textarea name="message" class="form-control" rows="4" placeholder="Savol yoki taklifingizni yozing..." required></textarea>
+                    </div>
+                    <button type="submit" class="btn btn-primary-custom w-100 py-2">
+                        <i class="bi bi-send-fill me-1"></i> Xabarni yuborish
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

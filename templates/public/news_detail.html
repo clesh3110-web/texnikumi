@@ -1,0 +1,46 @@
+{% extends 'base.html' %}
+{% block title %}{{ news.title }} — Guliston 1-son texnikumi{% endblock %}
+
+{% block content %}
+<nav class="navbar navbar-expand-lg navbar-dark bg-primary-custom py-3">
+    <div class="container">
+        <a class="navbar-brand fw-bold" href="{% url 'core:news_list' %}"><i class="bi bi-arrow-left me-2"></i> Barcha yangiliklarga qaytish</a>
+    </div>
+</nav>
+
+<div class="container py-5">
+    <div class="row g-5">
+        <div class="col-lg-8">
+            <span class="badge bg-primary-subtle text-primary px-3 py-2 rounded-pill fw-semibold mb-2">
+                <i class="bi bi-calendar3 me-1"></i> {{ news.published_at|date:"d M, Y — H:i" }}
+            </span>
+            <span class="badge bg-light text-muted border ms-2">
+                <i class="bi bi-eye me-1"></i> {{ news.views_count }} marta o‘qildi
+            </span>
+
+            <h2 class="fw-bold my-3">{{ news.title }}</h2>
+            <p class="lead text-muted">{{ news.summary }}</p>
+            <hr class="my-4">
+            <div class="fs-6 lh-lg text-secondary">
+                {{ news.content|linebreaks }}
+            </div>
+        </div>
+
+        <div class="col-lg-4">
+            <div class="card border-0 shadow-sm rounded-4 p-4 bg-white">
+                <h5 class="fw-bold mb-3">So‘nggi yangiliklar</h5>
+                <div class="d-flex flex-column gap-3">
+                    {% for r in recent_news %}
+                    <div class="border-bottom pb-2">
+                        <a href="{% url 'core:news_detail' r.pk %}" class="text-decoration-none text-dark fw-semibold small d-block mb-1">
+                            {{ r.title }}
+                        </a>
+                        <small class="text-muted"><i class="bi bi-clock me-1"></i> {{ r.published_at|date:"d.m.Y" }}</small>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

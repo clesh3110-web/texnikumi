@@ -1,0 +1,63 @@
+{% extends 'base.html' %}
+
+{% block title %}Yangi Uy Vazifasi — Guliston 1-son texnikumi{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="mb-3">
+        <a href="{% url 'assignments:assignment_list' %}" class="btn btn-outline-secondary btn-sm">
+            <i class="bi bi-arrow-left me-1"></i> Topshiriqlarga qaytish
+        </a>
+    </div>
+
+    <div class="card border-0 shadow-sm rounded-4 p-4 p-md-5 bg-white">
+        <h4 class="fw-bold text-dark mb-4"><i class="bi bi-plus-circle me-2 text-primary"></i> Yangi Uy Vazifasi Berish</h4>
+
+        <form method="post" enctype="multipart/form-data">
+            {% csrf_token %}
+            
+            <div class="mb-3">
+                <label class="form-label small fw-semibold">Guruh va Fan *:</label>
+                <select name="assignment_id" class="form-select bg-light" required>
+                    <option value="">-- Guruh va fanni tanlang --</option>
+                    {% for tsg in teaching_assignments %}
+                        <option value="{{ tsg.id }}">{{ tsg.group.name }} | {{ tsg.subject.name }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label small fw-semibold">Topshiriq nomi *:</label>
+                <input type="text" name="title" class="form-control" placeholder="Masalan: Django modellar va ma‘lumotlar bazasi bilan ishlash" required>
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label small fw-semibold">Dars mavzusi:</label>
+                <input type="text" name="topic" class="form-control" placeholder="Mavzuni kiriting">
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label small fw-semibold">Topshiriq shartlari va tavsifi *:</label>
+                <textarea name="description" class="form-control" rows="5" placeholder="Topshiriq talablari, yechish qoidalari va ko‘rsatmalarni yozing..." required></textarea>
+            </div>
+
+            <div class="row g-3 mb-4">
+                <div class="col-md-6">
+                    <label class="form-label small fw-semibold">Topshirish muddati (Dedlayn) *:</label>
+                    <input type="datetime-local" name="due_date" class="form-control" required>
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label small fw-semibold">Qo‘shimcha fayl / Qo‘llanma (Ixtiyoriy):</label>
+                    <input type="file" name="attachment_file" class="form-control">
+                </div>
+            </div>
+
+            <div class="text-end">
+                <button type="submit" class="btn btn-primary-custom px-5 py-2">
+                    <i class="bi bi-send-fill me-1"></i> Vazifani e‘lon qilish
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

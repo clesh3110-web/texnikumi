@@ -1,0 +1,152 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Elektron Davomat — Guliston 1-son texnikumi{% endblock %}
+
+{% block content %}
+<div class="bg-primary-custom text-white py-3 shadow-sm mb-4">
+    <div class="container d-flex justify-content-between align-items-center">
+        <div class="d-flex align-items-center gap-3">
+            <a href="{% url 'accounts:dashboard_redirect' %}" class="btn btn-outline-light btn-sm">
+                <i class="bi bi-arrow-left"></i> Panelga qaytish
+            </a>
+            <h4 class="fw-bold mb-0"><i class="bi bi-calendar-check-fill me-2 text-info"></i> Elektron Davomat Boshqaruvi</h4>
+        </div>
+        <div>
+            <span class="badge bg-success">Kunlik & Juftlik monitoringi</span>
+        </div>
+    </div>
+</div>
+
+<div class="container py-2">
+    {% if messages %}
+        {% for m in messages %}
+            <div class="alert alert-{{ m.tags }} alert-dismissible fade show small" role="alert">
+                {{ m }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+        {% endfor %}
+    {% endif %}
+
+    <!-- FILTR SHAKLI -->
+    <div class="card border-0 shadow-sm rounded-4 p-3 bg-white mb-4">
+        <form method="get" class="row g-2 align-items-end">
+            <div class="col-md-4">
+                <label class="form-label small fw-semibold text-muted mb-1">Guruhni tanlang:</label>
+                <select name="group" class="form-select bg-light" required>
+                    <option value="">-- Guruhni tanlang --</option>
+                    {% for g in groups %}
+                        <option value="{{ g.id }}" {% if selected_group.id == g.id %}selected{% endif %}>{{ g.name }} ({{ g.direction }})</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="col-md-3">
+                <label class="form-label small fw-semibold text-muted mb-1">Sana:</label>
+                <input type="date" name="date" class="form-control bg-light" value="{{ selected_date|date:'Y-m-d' }}" required>
+            </div>
+            <div class="col-md-3">
+                <label class="form-label small fw-semibold text-muted mb-1">Dars juftligi:</label>
+                <select name="pair" class="form-select bg-light">
+                    {% for p_num, p_name in pairs %}
+                        <option value="{{ p_num }}" {% if selected_pair == p_num %}selected{% endif %}>{{ p_name }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="col-md-2">
+                <button type="submit" class="btn btn-primary-custom w-100">
+                    <i class="bi bi-search me-1"></i> Ochish
+                </button>
+            </div>
+        </form>
+    </div>
+
+    {% if selected_group %}
+    <!-- DAVOMATNI BELGILASH JADVALI -->
+    <form method="post">
+        {% csrf_token %}
+        <div class="card border-0 shadow-sm rounded-4 p-4 bg-white mb-4">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <div>
+                    <h5 class="fw-bold mb-0 text-dark">{{ selected_group.name }} guruhi davomati</h5>
+                    <small class="text-muted">{{ selected_date|date:"d F, Y" }} | {{ selected_pair }}-juftlik</small>
+                </div>
+                <button type="submit" class="btn btn-success px-4 py-2 fw-bold shadow-sm">
+                    <i class="bi bi-check-all me-1"></i> Davomatni saqlash
+                </button>
+            </div>
+
+            <div class="table-responsive">
+                <table class="table table-hover align-middle small">
+                    <thead class="table-light">
+                        <tr>
+                            <th style="width: 40px;">#</th>
+                            <th>O‘quvchi F.I.Sh</th>
+                            <th class="text-center" style="width: 320px;">Davomat holati</th>
+                            <th style="width: 200px;">Hujjat (Spravka/Xat)</th>
+                            <th>Qo‘shimcha izoh</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for item in students_data %}
+                        <tr>
+                            <td class="text-muted">{{ forloop.counter }}</td>
+                            <td>
+                                <strong class="text-dark d-block">{{ item.student.user.get_full_name_uz }}</strong>
+                                <small class="text-muted">{{ item.student.student_id_number|default:"—" }}</small>
+                            </td>
+                            <td>
+                                <!-- 4 ta davomat holati radiosi -->
+                                <div class="btn-group w-100" role="group">
+                                    <input type="radio" class="btn-check" name="status_{{ item.student.id }}" id="present_{{ item.student.id }}" value="PRESENT" {% if item.status == 'PRESENT' %}checked{% endif %}>
+                                    <label class="btn btn-outline-success btn-sm py-1" for="present_{{ item.student.id }}">Darsda</label>
+
+                                    <input type="radio" class="btn-check" name="status_{{ item.student.id }}" id="late_{{ item.student.id }}" value="LATE" {% if item.status == 'LATE' %}checked{% endif %}>
+                                    <label class="btn btn-outline-warning btn-sm py-1" for="late_{{ item.student.id }}">Kechikdi</label>
+
+                                    <input type="radio" class="btn-check" name="status_{{ item.student.id }}" id="sick_{{ item.student.id }}" value="SICK" {% if item.status == 'SICK' %}checked{% endif %}>
+                                    <label class="btn btn-outline-info btn-sm py-1" for="sick_{{ item.student.id }}">Kasallik</label>
+
+                                    <input type="radio" class="btn-check" name="status_{{ item.student.id }}" id="absent_{{ item.student.id }}" value="ABSENT" {% if item.status == 'ABSENT' %}checked{% endif %}>
+                                    <label class="btn btn-outline-danger btn-sm py-1" for="absent_{{ item.student.id }}">Kelmagan</label>
+                                </div>
+                            </td>
+                            <td>
+                                <!-- Section 9.1: Spravka yoki Tushuntirish xati holati -->
+                                {% if item.document %}
+                                    <a href="{% url 'documents:document_detail' item.document.id %}" target="_blank" class="badge text-decoration-none {% if item.document.status == 'APPROVED' %}bg-success{% elif item.document.status == 'REJECTED' %}bg-danger{% else %}bg-warning text-dark{% endif %} p-2 d-inline-block">
+                                        <i class="bi bi-file-earmark-medical me-1"></i> {{ item.document.get_doc_type_display|truncatewords:2 }} ({{ item.document.get_status_display }})
+                                    </a>
+                                {% else %}
+                                    <span class="badge bg-light text-muted border p-2">
+                                        <i class="bi bi-file-earmark-x me-1"></i> Hujjat yo‘q
+                                    </span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                <input type="text" name="comment_{{ item.student.id }}" class="form-control form-control-sm" placeholder="Sabab yoki izoh..." value="{{ item.comment }}">
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="5" class="text-center text-muted py-4">Guruhda o‘quvchilar topilmadi.</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="mt-3 text-end">
+                <button type="submit" class="btn btn-success px-4 py-2 fw-bold shadow-sm">
+                    <i class="bi bi-check-all me-1"></i> Davomatni saqlash
+                </button>
+            </div>
+        </div>
+    </form>
+    {% else %}
+    <div class="alert alert-info border-0 shadow-sm rounded-4 p-4 text-center">
+        <i class="bi bi-info-circle fs-2 d-block mb-2 text-primary"></i>
+        Iltimos, yuqoridagi maydonlardan guruh va sanani tanlab "Ochish" tugmasini bosing.
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

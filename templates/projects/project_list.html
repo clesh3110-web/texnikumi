@@ -1,0 +1,95 @@
+{% extends 'base.html' %}
+
+{% block title %}Talabalar loyihalari va startaplari — Guliston 1-son texnikumi{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="card border-0 shadow-sm rounded-4 p-4 bg-primary-custom text-white mb-4">
+        <div class="d-flex justify-content-between align-items-center flex-wrap gap-3">
+            <div>
+                <span class="badge bg-warning text-dark px-3 py-1 fw-bold mb-2">Innovatsion Maydon</span>
+                <h3 class="fw-bold mb-1">Talabalar Loyihalari, Ixtirolari va Startaplari</h3>
+                <small class="text-white-50">Guliston 1-son texnikumi o‘quvchilarining amaliy g‘oyalari, dasturiy mahsulotlari va innovatsion tashabbuslari</small>
+            </div>
+            <div>
+                <a href="{% url 'projects:project_create' %}" class="btn btn-warning fw-bold px-4 py-2 shadow-sm text-dark">
+                    <i class="bi bi-plus-circle-fill me-1"></i> Yangi loyiha qo‘shish
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- FILTER PANEL -->
+    <div class="card border-0 shadow-sm rounded-4 p-3 mb-4">
+        <form method="get" class="row g-2 align-items-center">
+            <div class="col-md-5">
+                <select name="category" class="form-select">
+                    <option value="">— Barcha yo‘nalishlar —</option>
+                    {% for code, label in categories %}
+                    <option value="{{ code }}" {% if selected_category == code %}selected{% endif %}>{{ label }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="col-md-4">
+                <select name="status" class="form-select">
+                    <option value="">— Barcha holatlar —</option>
+                    {% for code, label in statuses %}
+                    <option value="{{ code }}" {% if selected_status == code %}selected{% endif %}>{{ label }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="col-md-3 d-flex gap-2">
+                <button type="submit" class="btn btn-primary w-100 fw-bold">
+                    <i class="bi bi-filter me-1"></i> Filtrlash
+                </button>
+                <a href="{% url 'projects:projects_list' %}" class="btn btn-outline-secondary">Tozalash</a>
+            </div>
+        </form>
+    </div>
+
+    <!-- LOYIHALAR GRID -->
+    <div class="row g-4">
+        {% for pr in projects %}
+        <div class="col-md-6 col-lg-4">
+            <div class="card border-0 shadow-sm rounded-4 h-100 d-flex flex-column overflow-hidden">
+                <div class="p-3 border-bottom d-flex justify-content-between align-items-center bg-light">
+                    <span class="badge bg-primary text-white fw-semibold">{{ pr.get_category_display }}</span>
+                    <span class="badge {% if pr.status == 'APPROVED' or pr.status == 'COMPLETED' %}bg-success{% elif pr.status == 'REVIEW' %}bg-warning text-dark{% else %}bg-info text-dark{% endif %}">
+                        {{ pr.get_status_display }}
+                    </span>
+                </div>
+                <div class="card-body p-4 d-flex flex-column flex-grow-1">
+                    <h5 class="fw-bold text-dark mb-2">
+                        <a href="{% url 'projects:project_detail' pr.id %}" class="text-decoration-none text-dark">
+                            {{ pr.title }}
+                        </a>
+                    </h5>
+                    <p class="text-muted small mb-3 flex-grow-1">{{ pr.description|truncatewords:22 }}</p>
+
+                    <div class="small text-muted mb-3">
+                        <div class="mb-1"><i class="bi bi-person text-primary me-1"></i> <strong>Muallif:</strong> {{ pr.creator.get_full_name_uz }}</div>
+                        {% if pr.mentor %}
+                        <div><i class="bi bi-award text-success me-1"></i> <strong>Ustoz:</strong> {{ pr.mentor.user.get_full_name_uz }}</div>
+                        {% endif %}
+                    </div>
+
+                    <div class="d-flex justify-content-between align-items-center pt-3 border-top mt-auto">
+                        <small class="text-muted"><i class="bi bi-chat-dots me-1"></i>{{ pr.comments.count }} fikr</small>
+                        <a href="{% url 'projects:project_detail' pr.id %}" class="btn btn-outline-primary btn-sm fw-bold">
+                            Batafsil <i class="bi bi-arrow-right"></i>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% empty %}
+        <div class="col-12">
+            <div class="alert alert-light border text-center py-5 rounded-4">
+                <i class="bi bi-lightbulb fs-1 text-muted d-block mb-2"></i>
+                Hozircha ushbu mezon bo‘yicha loyihalar topilmadi.
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}

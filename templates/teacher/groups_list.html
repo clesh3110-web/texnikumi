@@ -1,0 +1,45 @@
+{% extends 'teacher/base_teacher.html' %}
+
+{% block title %}Mening Guruhlarim — O‘qituvchi Kabineti{% endblock %}
+
+{% block teacher_content %}
+<div class="mb-4">
+    <h4 class="fw-bold text-dark mb-1">Mening Guruhlarim Ro‘yxati</h4>
+    <p class="text-muted small mb-0">Siz dars beradigan yoki kuratorlik qiladigan akademik guruhlar</p>
+</div>
+
+<div class="row g-4">
+    {% for g in my_groups %}
+    <div class="col-md-6 col-lg-4">
+        <div class="card border-0 shadow-sm rounded-4 p-4 h-100 bg-white">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <span class="badge bg-primary px-3 py-2 fs-6">{{ g.name }}</span>
+                <span class="badge bg-light text-dark border">{{ g.get_course_display }}</span>
+            </div>
+
+            <h5 class="fw-bold text-dark mb-1">{{ g.direction }}</h5>
+            <p class="text-muted small mb-3">O‘quv yili: {{ g.academic_year }}</p>
+
+            <div class="small text-muted border-top pt-2 mb-3">
+                <div class="d-flex justify-content-between py-1">
+                    <span>Jami o‘quvchilar:</span>
+                    <strong class="text-dark">{{ g.total_students_count }} nafar</strong>
+                </div>
+                <div class="d-flex justify-content-between py-1">
+                    <span>Guruh rahbari:</span>
+                    <strong>{{ g.curator.user.get_full_name_uz|default:"Tayinlanmagan" }}</strong>
+                </div>
+            </div>
+
+            <a href="{% url 'teachers:teacher_group_detail' g.id %}" class="btn btn-primary-custom w-100 mt-auto">
+                <i class="bi bi-people me-1"></i> O‘quvchilar va jurnal
+            </a>
+        </div>
+    </div>
+    {% empty %}
+    <div class="col-12 text-center text-muted py-5">
+        Sizga hozircha guruh biriktirilmagan.
+    </div>
+    {% endfor %}
+</div>
+{% endblock %}

@@ -1,0 +1,341 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tizimga kirish — Guliston 1-son Texnikumi</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+            overflow: hidden;
+        }
+
+        /* ---- Orqa fon slayder ---- */
+        .bg-slider {
+            position: fixed;
+            inset: 0;
+            z-index: 0;
+        }
+        .bg-slide {
+            position: absolute;
+            inset: 0;
+            background-size: cover;
+            background-position: center;
+            opacity: 0;
+            transition: opacity 1.5s ease-in-out;
+        }
+        .bg-slide.active { opacity: 1; }
+        .bg-slide:nth-child(1) { background-image: url("{% static 'img/texnikum1.jpg' %}"); }
+        .bg-slide:nth-child(2) { background-image: url("{% static 'img/texnikum2.jpg' %}"); }
+
+        /* Qoʻyilma qora parda */
+        .bg-overlay {
+            position: fixed;
+            inset: 0;
+            z-index: 1;
+            background: rgba(5, 20, 50, 0.60);
+            backdrop-filter: blur(2px);
+        }
+
+        /* ---- Karta ---- */
+        .login-wrap {
+            position: relative;
+            z-index: 2;
+            width: 100%;
+            max-width: 460px;
+            padding: 1rem;
+        }
+
+        .login-card {
+            background: rgba(255,255,255,0.97);
+            border-radius: 20px;
+            overflow: hidden;
+            box-shadow: 0 25px 60px rgba(0,0,0,0.4);
+        }
+
+        /* ---- Yuqori banner ---- */
+        .card-banner {
+            background: linear-gradient(135deg, #0a1f44 0%, #1e3a8a 60%, #1d4ed8 100%);
+            padding: 2.4rem 2rem 2rem;
+            text-align: center;
+            color: #fff;
+            position: relative;
+            overflow: hidden;
+        }
+        .card-banner::before {
+            content: '';
+            position: absolute;
+            width: 300px; height: 300px;
+            border-radius: 50%;
+            background: rgba(255,255,255,0.05);
+            top: -120px; right: -80px;
+        }
+        .card-banner::after {
+            content: '';
+            position: absolute;
+            width: 200px; height: 200px;
+            border-radius: 50%;
+            background: rgba(255,255,255,0.04);
+            bottom: -60px; left: -50px;
+        }
+        .logo-circle {
+            width: 72px; height: 72px;
+            background: rgba(255,255,255,0.15);
+            border-radius: 50%;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2rem;
+            color: #7dd3fc;
+            margin-bottom: 1rem;
+            border: 2px solid rgba(255,255,255,0.2);
+            position: relative; z-index: 1;
+        }
+        .card-banner h4 {
+            font-size: 1.25rem;
+            font-weight: 800;
+            letter-spacing: 0.5px;
+            margin-bottom: 0.3rem;
+            position: relative; z-index: 1;
+        }
+        .card-banner p {
+            color: rgba(255,255,255,0.65);
+            font-size: 0.85rem;
+            margin: 0;
+            position: relative; z-index: 1;
+        }
+
+        /* ---- Forma ---- */
+        .card-body-inner { padding: 2rem 2.2rem 2.2rem; }
+
+        .form-label {
+            font-size: 0.82rem;
+            font-weight: 600;
+            color: #475569;
+            margin-bottom: 0.4rem;
+        }
+        .form-control {
+            border-radius: 10px;
+            border: 1.5px solid #e2e8f0;
+            padding: 0.65rem 1rem;
+            font-size: 0.95rem;
+            transition: border-color .2s, box-shadow .2s;
+        }
+        .form-control:focus {
+            border-color: #3b82f6;
+            box-shadow: 0 0 0 3px rgba(59,130,246,0.15);
+        }
+        .input-group .form-control { border-right: none; border-radius: 10px 0 0 10px; }
+        .input-group .btn-outline-secondary {
+            border: 1.5px solid #e2e8f0;
+            border-left: none;
+            border-radius: 0 10px 10px 0;
+            background: #f8fafc;
+            color: #64748b;
+        }
+        .input-group .btn-outline-secondary:hover { background: #f1f5f9; color: #3b82f6; }
+
+        /* Kirish tugmasi */
+        .btn-login {
+            background: linear-gradient(135deg, #1d4ed8, #3b82f6);
+            border: none;
+            border-radius: 12px;
+            color: #fff;
+            font-weight: 700;
+            font-size: 1rem;
+            padding: 0.75rem;
+            width: 100%;
+            transition: transform .15s, box-shadow .15s;
+            box-shadow: 0 4px 14px rgba(59,130,246,0.4);
+        }
+        .btn-login:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 6px 20px rgba(59,130,246,0.5);
+            color: #fff;
+        }
+        .btn-login:active { transform: translateY(0); }
+
+        /* Xato xabarlari */
+        .alert { border-radius: 10px; font-size: 0.88rem; }
+
+        /* Pastki matn */
+        .login-footer {
+            text-align: center;
+            color: #94a3b8;
+            font-size: 0.78rem;
+            margin-top: 1.4rem;
+        }
+
+        /* Slayder indikatorlari */
+        .slide-dots {
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 3;
+            display: flex;
+            gap: 8px;
+        }
+        .dot {
+            width: 8px; height: 8px;
+            border-radius: 50%;
+            background: rgba(255,255,255,0.4);
+            transition: background .3s, transform .3s;
+            cursor: pointer;
+        }
+        .dot.active { background: #fff; transform: scale(1.3); }
+
+        /* Mobil */
+        @media (max-width: 480px) {
+            .card-body-inner { padding: 1.5rem; }
+            .card-banner { padding: 1.8rem 1.5rem 1.5rem; }
+        }
+    </style>
+</head>
+<body>
+
+<!-- Orqa fon slayder -->
+<div class="bg-slider">
+    <div class="bg-slide active"></div>
+    <div class="bg-slide"></div>
+</div>
+<div class="bg-overlay"></div>
+
+<!-- Slayder nuqtalari -->
+<div class="slide-dots">
+    <div class="dot active" onclick="goSlide(0)"></div>
+    <div class="dot" onclick="goSlide(1)"></div>
+</div>
+
+<!-- Login karta -->
+<div class="login-wrap">
+    <div class="login-card">
+
+        <!-- Banner -->
+        <div class="card-banner">
+            <div class="logo-circle">
+                <i class="bi bi-mortarboard-fill"></i>
+            </div>
+            <h4>GULISTON 1-SON TEXNIKUM</h4>
+            <p>Ta'lim Boshqaruv Tizimi</p>
+        </div>
+
+        <!-- Forma -->
+        <div class="card-body-inner">
+
+            {% if messages %}
+                {% for message in messages %}
+                    <div class="alert alert-{{ message.tags|default:'info' }} alert-dismissible fade show" role="alert">
+                        <i class="bi bi-info-circle me-1"></i> {{ message }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                    </div>
+                {% endfor %}
+            {% endif %}
+
+            {% if form.non_field_errors %}
+                <div class="alert alert-danger">
+                    {% for error in form.non_field_errors %}
+                        <div><i class="bi bi-exclamation-triangle-fill me-1"></i> {{ error }}</div>
+                    {% endfor %}
+                </div>
+            {% endif %}
+
+            <form method="post" action="{% url 'accounts:login' %}" novalidate>
+                {% csrf_token %}
+                {% if request.GET.next %}
+                    <input type="hidden" name="next" value="{{ request.GET.next }}">
+                {% endif %}
+
+                <!-- Login -->
+                <div class="mb-3">
+                    <label class="form-label">
+                        <i class="bi bi-person-fill me-1 text-primary"></i> Login
+                    </label>
+                    {{ form.login_field }}
+                    {% if form.login_field.errors %}
+                        <div class="text-danger small mt-1">
+                            <i class="bi bi-exclamation-circle me-1"></i>{{ form.login_field.errors.0 }}
+                        </div>
+                    {% endif %}
+                </div>
+
+                <!-- Parol -->
+                <div class="mb-4">
+                    <label class="form-label">
+                        <i class="bi bi-lock-fill me-1 text-primary"></i> Parol
+                    </label>
+                    <div class="input-group">
+                        {{ form.password }}
+                        <button class="btn btn-outline-secondary" type="button" id="togglePasswordBtn" tabindex="-1">
+                            <i class="bi bi-eye" id="togglePasswordIcon"></i>
+                        </button>
+                    </div>
+                    {% if form.password.errors %}
+                        <div class="text-danger small mt-1">
+                            <i class="bi bi-exclamation-circle me-1"></i>{{ form.password.errors.0 }}
+                        </div>
+                    {% endif %}
+                </div>
+
+                <!-- Kirish tugmasi -->
+                <button type="submit" class="btn-login">
+                    <i class="bi bi-box-arrow-in-right me-2"></i> Tizimga kirish
+                </button>
+            </form>
+
+            <div class="login-footer">
+                <i class="bi bi-shield-lock me-1"></i>
+                Guliston shahar 1-son texnikumi &copy; 2026
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+    // ---- Parol ko'rish/yashirish ----
+    const toggleBtn = document.getElementById('togglePasswordBtn');
+    const pwdInput = document.querySelector('input[name="password"]');
+    const icon = document.getElementById('togglePasswordIcon');
+    if (toggleBtn && pwdInput) {
+        toggleBtn.addEventListener('click', () => {
+            const show = pwdInput.type === 'password';
+            pwdInput.type = show ? 'text' : 'password';
+            icon.className = show ? 'bi bi-eye-slash' : 'bi bi-eye';
+        });
+    }
+
+    // ---- Orqa fon slayder ----
+    const slides = document.querySelectorAll('.bg-slide');
+    const dots   = document.querySelectorAll('.dot');
+    let current  = 0;
+    let timer;
+
+    function goSlide(n) {
+        slides[current].classList.remove('active');
+        dots[current].classList.remove('active');
+        current = n;
+        slides[current].classList.add('active');
+        dots[current].classList.add('active');
+        clearInterval(timer);
+        timer = setInterval(nextSlide, 5000);
+    }
+
+    function nextSlide() {
+        goSlide((current + 1) % slides.length);
+    }
+
+    // 5 soniyada bir almashadi
+    timer = setInterval(nextSlide, 5000);
+</script>
+</body>
+</html>

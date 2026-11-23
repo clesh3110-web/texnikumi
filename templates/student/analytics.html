@@ -1,0 +1,261 @@
+{% extends 'student/base_student.html' %}
+
+{% block title %}Akademik Tahlil va Diagrammalar — Guliston 1-son texnikumi{% endblock %}
+
+{% block extra_css %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+{% endblock %}
+
+{% block student_content %}
+<div class="card border-0 shadow-sm rounded-4 p-4 bg-primary-custom text-white mb-4">
+    <div class="d-flex justify-content-between align-items-center flex-wrap gap-3">
+        <div>
+            <span class="badge bg-info text-dark px-3 py-1 fw-bold mb-1">{{ group.name }} guruhi</span>
+            <h4 class="fw-bold mb-0">Akademik O‘zlashtirish va Davomat Tahlili</h4>
+            <small class="text-white-50">Shaxsiy reyting, fanlar balansi va oylik dinamika monitoringi</small>
+        </div>
+        <div class="d-flex gap-2">
+            <a href="{% url 'journal:student_grades' %}" class="btn btn-outline-light px-3">
+                <i class="bi bi-award-fill me-1"></i> Baholar jurnali
+            </a>
+            <a href="{% url 'attendance:student_attendance' %}" class="btn btn-light px-3 fw-bold text-primary">
+                <i class="bi bi-calendar-check-fill me-1"></i> Davomat
+            </a>
+        </div>
+    </div>
+</div>
+
+<!-- 4 TA STATISTIK KARTA -->
+<div class="row g-3 mb-4">
+    <div class="col-sm-6 col-xl-3">
+        <div class="card stat-card bg-white p-3 h-100 border-start border-primary border-4 shadow-sm">
+            <span class="text-muted small fw-semibold d-block">Umumiy GPA</span>
+            <h3 class="fw-bold mb-0 text-primary">{{ gpa }} / 5.0</h3>
+            <small class="text-success fw-bold"><i class="bi bi-graph-up-arrow"></i> A'lo darajada</small>
+        </div>
+    </div>
+    <div class="col-sm-6 col-xl-3">
+        <div class="card stat-card bg-white p-3 h-100 border-start border-success border-4 shadow-sm">
+            <span class="text-muted small fw-semibold d-block">Umumiy Davomat</span>
+            <h3 class="fw-bold mb-0 text-success">{{ attendance_percentage }}%</h3>
+            <small class="text-muted">Intizom ko‘rsatkichi</small>
+        </div>
+    </div>
+    <div class="col-sm-6 col-xl-3">
+        <div class="card stat-card bg-white p-3 h-100 border-start border-info border-4 shadow-sm">
+            <span class="text-muted small fw-semibold d-block">Fanlar Soni</span>
+            <h3 class="fw-bold mb-0 text-info">{{ subject_stats|length }} ta</h3>
+            <small class="text-muted">Joriy semestrda</small>
+        </div>
+    </div>
+    <div class="col-sm-6 col-xl-3">
+        <div class="card stat-card bg-white p-3 h-100 border-start border-warning border-4 shadow-sm">
+            <span class="text-muted small fw-semibold d-block">Guruhdagi O‘rni</span>
+            <h3 class="fw-bold mb-0 text-warning">Top 5</h3>
+            <small class="text-success fw-bold"><i class="bi bi-trophy-fill"></i> Yetakchi talaba</small>
+        </div>
+    </div>
+</div>
+
+<!-- DIAGRAMMALAR QISMI -->
+<div class="row g-4 mb-4">
+    <!-- Fanlar bo'yicha baholar diagrammasi -->
+    <div class="col-lg-8">
+        <div class="card border-0 shadow-sm rounded-4 p-4 h-100">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <h6 class="fw-bold mb-0 text-dark">
+                    <i class="bi bi-bar-chart-fill text-primary me-2"></i>Fanlar kesimida o‘rtacha baho
+                </h6>
+                <span class="badge bg-light text-muted border">5 ballik tizim</span>
+            </div>
+            <div style="height: 300px; position: relative;">
+                <canvas id="subjectScoresChart"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <!-- Davomat taqsimoti (Donut) -->
+    <div class="col-lg-4">
+        <div class="card border-0 shadow-sm rounded-4 p-4 h-100">
+            <h6 class="fw-bold mb-3 text-dark">
+                <i class="bi bi-pie-chart-fill text-info me-2"></i>Davomat taqsimoti
+            </h6>
+            <div style="height: 230px; position: relative;">
+                <canvas id="attendanceDonutChart"></canvas>
+            </div>
+            <div class="mt-3 small text-muted text-center">
+                <span class="badge bg-success me-1">Darsda</span>
+                <span class="badge bg-warning text-dark me-1">Kechikkan</span>
+                <span class="badge bg-info text-dark me-1">Kasallik</span>
+                <span class="badge bg-danger">Sababsiz</span>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- OYLIK DINAMIKA VA JADVAL -->
+<div class="row g-4 mb-4">
+    <!-- Oylik GPA o'zgarishi -->
+    <div class="col-lg-6">
+        <div class="card border-0 shadow-sm rounded-4 p-4 h-100">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <h6 class="fw-bold mb-0 text-dark">
+                    <i class="bi bi-graph-up text-success me-2"></i>Oylik o‘zlashtirish dinamikasi (GPA)
+                </h6>
+                <span class="badge bg-light text-muted border">2024–2025</span>
+            </div>
+            <div style="height: 260px; position: relative;">
+                <canvas id="gpaTrendChart"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <!-- Fanlar bo'yicha tahliliy jadval -->
+    <div class="col-lg-6">
+        <div class="card border-0 shadow-sm rounded-4 p-4 h-100">
+            <h6 class="fw-bold mb-3 text-dark">
+                <i class="bi bi-table text-primary me-2"></i>Fanlar bo‘yicha batafsil ko‘rsatkichlar
+            </h6>
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0">
+                    <thead class="table-light text-muted small">
+                        <tr>
+                            <th>Fan</th>
+                            <th class="text-center">O‘rtacha baho</th>
+                            <th class="text-center">Davomat</th>
+                            <th class="text-center">Topshiriq</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for row in subject_stats %}
+                        <tr>
+                            <td class="fw-semibold text-dark">{{ row.subject.name }}</td>
+                            <td class="text-center">
+                                <span class="badge {% if row.avg_score >= 4.5 %}bg-success{% elif row.avg_score >= 3.5 %}bg-primary{% else %}bg-warning text-dark{% endif %} px-2 py-1">
+                                    {{ row.avg_score }}
+                                </span>
+                            </td>
+                            <td class="text-center">
+                                <span class="fw-bold text-success">{{ row.attendance_rate }}%</span>
+                            </td>
+                            <td class="text-center">
+                                <span class="badge bg-light text-muted border">{{ row.submissions_count }} ta</span>
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="4" class="text-center text-muted py-3">Hozircha fan ma'lumotlari mavjud emas.</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const subjectLabels = {{ subject_labels_json|safe }};
+    const subjectScores = {{ subject_scores_json|safe }};
+    const donutData = {{ attendance_donut_json|safe }};
+    const monthlyLabels = {{ monthly_labels_json|safe }};
+    const monthlyGpa = {{ monthly_gpa_json|safe }};
+
+    // 1. Fanlar baholari charti (Bar)
+    const ctx1 = document.getElementById('subjectScoresChart');
+    if (ctx1) {
+        new Chart(ctx1, {
+            type: 'bar',
+            data: {
+                labels: subjectLabels,
+                datasets: [{
+                    label: 'O‘rtacha baho',
+                    data: subjectScores,
+                    backgroundColor: 'rgba(13, 34, 64, 0.85)',
+                    borderColor: '#0d2240',
+                    borderWidth: 1,
+                    borderRadius: 6,
+                    barThickness: 28,
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        max: 5,
+                        ticks: { stepSize: 1 }
+                    }
+                },
+                plugins: {
+                    legend: { display: false }
+                }
+            }
+        });
+    }
+
+    // 2. Davomat Donut charti
+    const ctx2 = document.getElementById('attendanceDonutChart');
+    if (ctx2) {
+        new Chart(ctx2, {
+            type: 'doughnut',
+            data: {
+                labels: ['Darsda', 'Kechikkan', 'Kasallik', 'Sababsiz'],
+                datasets: [{
+                    data: donutData,
+                    backgroundColor: ['#10b981', '#f59e0b', '#0ea5e9', '#ef4444'],
+                    borderWidth: 2,
+                    hoverOffset: 4
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                cutout: '70%',
+                plugins: {
+                    legend: { display: false }
+                }
+            }
+        });
+    }
+
+    // 3. Oylik GPA o'zgarishi (Line)
+    const ctx3 = document.getElementById('gpaTrendChart');
+    if (ctx3) {
+        new Chart(ctx3, {
+            type: 'line',
+            data: {
+                labels: monthlyLabels,
+                datasets: [{
+                    label: 'GPA',
+                    data: monthlyGpa,
+                    borderColor: '#0ea5e9',
+                    backgroundColor: 'rgba(14, 165, 233, 0.1)',
+                    borderWidth: 3,
+                    fill: true,
+                    tension: 0.35,
+                    pointBackgroundColor: '#0d2240',
+                    pointRadius: 5
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    y: {
+                        min: 3.0,
+                        max: 5.0,
+                        ticks: { stepSize: 0.5 }
+                    }
+                },
+                plugins: {
+                    legend: { display: false }
+                }
+            }
+        });
+    }
+});
+</script>
+{% endblock %}

@@ -1,0 +1,37 @@
+{% extends 'base.html' %}
+{% block title %}Rahbariyat — Guliston 1-son texnikumi{% endblock %}
+
+{% block content %}
+<nav class="navbar navbar-expand-lg navbar-dark bg-primary-custom py-3">
+    <div class="container">
+        <a class="navbar-brand fw-bold" href="{% url 'core:home' %}"><i class="bi bi-arrow-left me-2"></i> Bosh sahifaga qaytish</a>
+    </div>
+</nav>
+
+<div class="container py-5">
+    <div class="text-center mb-5">
+        <span class="badge bg-primary-subtle text-primary px-3 py-2 rounded-pill fw-semibold">Ma'muriyat</span>
+        <h2 class="fw-bold mt-2">Texnikum Rahbariyati</h2>
+        <p class="text-muted">Texnikumning o‘quv, ilmiy va tarbiyaviy jarayonlarini boshqaruvchi mas'ul xodimlar.</p>
+    </div>
+
+    <div class="row g-4 justify-content-center">
+        {% for leader in leaders %}
+        <div class="col-md-4">
+            <div class="card h-100 border-0 shadow-sm rounded-4 text-center p-4">
+                <div class="rounded-circle bg-primary-subtle text-primary mx-auto mb-3 d-flex align-items-center justify-content-center" style="width: 100px; height: 100px; font-size: 2.5rem;">
+                    <i class="bi bi-person-fill"></i>
+                </div>
+                <h5 class="fw-bold mb-1">{{ leader.full_name }}</h5>
+                <p class="text-primary fw-semibold small mb-3">{{ leader.position }}</p>
+                <div class="small text-muted border-top pt-3 text-start">
+                    <p class="mb-1"><i class="bi bi-telephone me-2 text-primary"></i> {{ leader.phone|default:"+998 (67) 225-10-01" }}</p>
+                    <p class="mb-1"><i class="bi bi-envelope me-2 text-primary"></i> {{ leader.email|default:"info@guliston-texnikum.uz" }}</p>
+                    <p class="mb-0"><i class="bi bi-clock me-2 text-primary"></i> {{ leader.reception_days }}</p>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}

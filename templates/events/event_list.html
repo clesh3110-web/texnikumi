@@ -1,0 +1,81 @@
+{% extends 'base.html' %}
+
+{% block title %}Tadbirlar va bayramlar — Guliston 1-son texnikumi{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <!-- HERO SARLAVHA -->
+    <div class="card border-0 shadow-sm rounded-4 p-4 bg-primary-custom text-white mb-4">
+        <div class="d-flex justify-content-between align-items-center flex-wrap gap-3">
+            <div>
+                <span class="badge bg-warning text-dark px-3 py-1 fw-bold mb-2">Texnikum Hayoti</span>
+                <h3 class="fw-bold mb-1">Tadbirlar, Bayramlar va Ilmiy Anjumanlar</h3>
+                <small class="text-white-50">Guliston 1-son texnikumida rejalashtirilgan eng muhim ma'naviy, ma'rifiy va ilmiy tadbirlar</small>
+            </div>
+            {% if user.is_authenticated %}
+            <div class="text-white-50 small">
+                <i class="bi bi-person-check-fill me-1 text-info"></i> {{ user.get_full_name_uz }}
+            </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- KELGUSI TADBIRLAR -->
+    <h5 class="fw-bold text-dark mb-3">
+        <i class="bi bi-calendar-event-fill text-primary me-2"></i>Kutilayotgan tadbirlar
+    </h5>
+
+    <div class="row g-4 mb-5">
+        {% for ev in upcoming_events %}
+        <div class="col-md-6 col-lg-4">
+            <div class="card border-0 shadow-sm rounded-4 h-100 overflow-hidden d-flex flex-column">
+                <div class="bg-primary text-white p-3 d-flex justify-content-between align-items-center" style="background: linear-gradient(135deg, #0d2240, #1a365d);">
+                    <span class="badge bg-info text-dark fw-bold"><i class="bi bi-geo-alt-fill me-1"></i>{{ ev.location }}</span>
+                    <small class="text-white-50"><i class="bi bi-clock me-1"></i>{{ ev.event_date|date:"d.m.Y H:i" }}</small>
+                </div>
+                <div class="card-body p-4 d-flex flex-column flex-grow-1">
+                    <h5 class="fw-bold text-dark mb-2">{{ ev.title }}</h5>
+                    <p class="text-muted small mb-3 flex-grow-1">{{ ev.description|truncatewords:20 }}</p>
+                    <div class="d-flex justify-content-between align-items-center pt-3 border-top">
+                        <small class="text-muted">
+                            <i class="bi bi-people-fill text-primary me-1"></i>{{ ev.participants_count }} / {{ ev.max_participants }} qatnashuvchi
+                        </small>
+                        <a href="{% url 'events:event_detail' ev.id %}" class="btn btn-sm btn-primary fw-bold px-3">
+                            Batafsil <i class="bi bi-arrow-right ms-1"></i>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% empty %}
+        <div class="col-12">
+            <div class="alert alert-light border text-center py-4 rounded-4">
+                <i class="bi bi-calendar-x fs-2 text-muted d-block mb-2"></i>
+                Hozircha yaqin kunlarda rejalashtirilgan tadbirlar mavjud emas.
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+
+    <!-- O'TKAZILGAN TADBIRLAR -->
+    {% if past_events %}
+    <h5 class="fw-bold text-dark mb-3">
+        <i class="bi bi-clock-history text-secondary me-2"></i>O‘tkazilgan tadbirlar arxivi
+    </h5>
+    <div class="row g-3">
+        {% for ev in past_events %}
+        <div class="col-md-6 col-lg-4">
+            <div class="card border-0 shadow-sm rounded-3 p-3 bg-light">
+                <h6 class="fw-bold mb-1 text-dark">{{ ev.title }}</h6>
+                <small class="text-muted d-block mb-2">{{ ev.event_date|date:"d.m.Y" }} | {{ ev.location }}</small>
+                <div class="d-flex justify-content-between align-items-center">
+                    <small class="text-muted"><i class="bi bi-person-check me-1"></i>{{ ev.participants_count }} ishtirokchi</small>
+                    <a href="{% url 'events:event_detail' ev.id %}" class="btn btn-sm btn-outline-secondary">Ko‘rish</a>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

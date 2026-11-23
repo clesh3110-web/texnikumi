@@ -1,0 +1,42 @@
+{% extends 'base.html' %}
+{% block title %}Yangiliklar — Guliston 1-son texnikumi{% endblock %}
+
+{% block content %}
+<nav class="navbar navbar-expand-lg navbar-dark bg-primary-custom py-3">
+    <div class="container">
+        <a class="navbar-brand fw-bold" href="{% url 'core:home' %}"><i class="bi bi-arrow-left me-2"></i> Bosh sahifaga qaytish</a>
+    </div>
+</nav>
+
+<div class="container py-5">
+    <div class="text-center mb-5">
+        <span class="badge bg-primary-subtle text-primary px-3 py-2 rounded-pill fw-semibold">Yangiliklar</span>
+        <h2 class="fw-bold mt-2">Texnikum Hayoti va Yangiliklari</h2>
+    </div>
+
+    <div class="row g-4">
+        {% for item in page_obj %}
+        <div class="col-md-4">
+            <div class="card h-100 border-0 shadow-sm rounded-4 overflow-hidden">
+                <div class="bg-primary-subtle d-flex align-items-center justify-content-center" style="height: 180px;">
+                    <i class="bi bi-newspaper fs-1 text-primary opacity-50"></i>
+                </div>
+                <div class="card-body p-4 d-flex flex-column">
+                    <small class="text-muted mb-2">
+                        <i class="bi bi-calendar3 me-1"></i> {{ item.published_at|date:"d.m.Y" }}
+                        <span class="ms-3"><i class="bi bi-eye me-1"></i> {{ item.views_count }}</span>
+                    </small>
+                    <h5 class="fw-bold mb-2">{{ item.title }}</h5>
+                    <p class="text-muted small mb-4">{{ item.summary|truncatewords:20 }}</p>
+                    <a href="{% url 'core:news_detail' item.pk %}" class="btn btn-link text-primary p-0 fw-semibold mt-auto text-decoration-none">
+                        Batafsil o‘qish <i class="bi bi-arrow-right"></i>
+                    </a>
+                </div>
+            </div>
+        </div>
+        {% empty %}
+        <div class="col-12 text-center text-muted">Hozircha yangiliklar yo‘q.</div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}

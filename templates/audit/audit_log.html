@@ -1,0 +1,102 @@
+{% extends 'admin_panel/base_admin.html' %}
+
+{% block title %}Xavfsizlik va Audit Jurnali — Guliston 1-son texnikumi{% endblock %}
+
+{% block admin_content %}
+<div class="card border-0 shadow-sm rounded-4 p-4 bg-primary-custom text-white mb-4">
+    <div class="d-flex justify-content-between align-items-center flex-wrap gap-3">
+        <div>
+            <span class="badge bg-danger px-3 py-1 fw-bold mb-2"><i class="bi bi-shield-lock-fill me-1"></i> Xavfsizlik va Nazorat</span>
+            <h3 class="fw-bold mb-1">Tizim Faoliyati va Xavfsizlik Audit Jurnali</h3>
+            <small class="text-white-50">Tizimda amalga oshirilgan har bir harakat (kirish, baho o‘zgarishi, davomat, hujjatlar) avtomatik qayd etiladi va o‘chirib bo‘lmaydi</small>
+        </div>
+        <div class="text-white-50 small">
+            <i class="bi bi-clock-history me-1"></i> Jami qaydlar: {{ total_count }} ta
+        </div>
+    </div>
+</div>
+
+<!-- FILTR VA QIDIRUV -->
+<div class="card border-0 shadow-sm rounded-4 p-3 mb-4">
+    <form method="get" class="row g-2 align-items-center">
+        <div class="col-md-5">
+            <div class="input-group">
+                <span class="input-group-text bg-light"><i class="bi bi-search"></i></span>
+                <input type="text" name="q" class="form-control" placeholder="Foydalanuvchi, IP yoki amal tafsiloti..." value="{{ query }}">
+            </div>
+        </div>
+        <div class="col-md-4">
+            <select name="action" class="form-select">
+                <option value="">— Barcha harakatlar turlari —</option>
+                {% for code, label in actions %}
+                <option value="{{ code }}" {% if selected_action == code %}selected{% endif %}>{{ label }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="col-md-3 d-flex gap-2">
+            <button type="submit" class="btn btn-primary w-100 fw-bold">
+                <i class="bi bi-filter me-1"></i> Filtrlash
+            </button>
+            <a href="{% url 'audit:audit_log' %}" class="btn btn-outline-secondary">Tozalash</a>
+        </div>
+    </form>
+</div>
+
+<!-- AUDIT JURNAL JADVALI -->
+<div class="card border-0 shadow-sm rounded-4 overflow-hidden">
+    <div class="table-responsive">
+        <table class="table table-hover align-middle mb-0">
+            <thead class="table-light small text-muted">
+                <tr>
+                    <th style="width: 16%;">Vaqti</th>
+                    <th style="width: 18%;">Foydalanuvchi</th>
+                    <th style="width: 18%;">Harakat turi</th>
+                    <th>Tafsilotlar</th>
+                    <th style="width: 12%;">IP manzil</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for log in logs %}
+                <tr>
+                    <td class="text-muted small fw-semibold">
+                        {{ log.created_at|date:"d.m.Y H:i:s" }}
+                    </td>
+                    <td>
+                        {% if log.user %}
+                        <span class="fw-bold text-dark d-block">{{ log.user.get_full_name_uz }}</span>
+                        <small class="text-muted">{{ log.user.get_role_display }} (@{{ log.user.username }})</small>
+                        {% else %}
+                        <span class="badge bg-secondary">Anonim / Tizim</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        <span class="badge 
+                            {% if log.action == 'LOGIN' %}bg-success-subtle text-success border border-success-subtle
+                            {% elif log.action == 'LOGOUT' %}bg-secondary-subtle text-secondary border
+                            {% elif log.action == 'GRADE_CHANGE' %}bg-primary-subtle text-primary border border-primary-subtle
+                            {% elif log.action == 'ATTENDANCE_CHANGE' %}bg-warning-subtle text-warning border border-warning-subtle
+                            {% elif log.action == 'DOCUMENT_VERIFY' %}bg-info-subtle text-info border border-info-subtle
+                            {% else %}bg-dark-subtle text-dark border{% endif %}">
+                            {{ log.get_action_display }}
+                        </span>
+                    </td>
+                    <td class="text-dark small">
+                        {{ log.details }}
+                    </td>
+                    <td class="text-muted small font-monospace">
+                        {{ log.ip_address|default:"127.0.0.1" }}
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="5" class="text-center text-muted py-5">
+                        <i class="bi bi-shield-check fs-1 text-muted d-block mb-2"></i>
+                        Hozircha audit yozuvlari topilmadi.
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

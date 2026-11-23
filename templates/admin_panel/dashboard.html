@@ -1,0 +1,230 @@
+{% extends 'admin_panel/base_admin.html' %}
+{% load static %}
+
+{% block title %}Administrator Dashboardi — Guliston 1-son texnikumi{% endblock %}
+
+{% block admin_content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <h4 class="fw-bold text-dark mb-1">Boshqaruv Dashboardi va Monitoring</h4>
+        <p class="text-muted small mb-0">Bugungi kun holati bo‘yicha texnikumning ta'limiy va davomat ko‘rsatkichlari</p>
+    </div>
+    <div class="d-flex gap-2">
+        <a href="{% url 'core:admin_students' %}" class="btn btn-outline-primary btn-sm">
+            <i class="bi bi-person-plus me-1"></i> Yangi o‘quvchi
+        </a>
+        <a href="/admin/" class="btn btn-primary-custom btn-sm">
+            <i class="bi bi-gear-fill me-1"></i> Tizim sozlamalari
+        </a>
+    </div>
+</div>
+
+<!-- 8 TA ASOSIY STATISTIKA KARTALARI -->
+<div class="row g-3 mb-4">
+    <!-- 1. Jami o'quvchilar -->
+    <div class="col-sm-6 col-xl-3">
+        <div class="card stat-card bg-white p-3 h-100 border-start border-primary border-4">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <span class="text-muted small fw-semibold d-block">Jami O‘quvchilar</span>
+                    <h3 class="fw-bold mb-0 text-dark">{{ total_students }}</h3>
+                </div>
+                <div class="rounded-3 bg-primary-subtle text-primary p-3">
+                    <i class="bi bi-people-fill fs-4"></i>
+                </div>
+            </div>
+            <div class="mt-2 text-muted" style="font-size: 0.75rem;">
+                <span class="text-success fw-bold"><i class="bi bi-check-circle"></i> 100%</span> faol ro‘yxatda
+            </div>
+        </div>
+    </div>
+
+    <!-- 2. Jami o'qituvchilar -->
+    <div class="col-sm-6 col-xl-3">
+        <div class="card stat-card bg-white p-3 h-100 border-start border-info border-4">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <span class="text-muted small fw-semibold d-block">Jami O‘qituvchilar</span>
+                    <h3 class="fw-bold mb-0 text-dark">{{ total_teachers }}</h3>
+                </div>
+                <div class="rounded-3 bg-info-subtle text-info p-3">
+                    <i class="bi bi-person-badge-fill fs-4"></i>
+                </div>
+            </div>
+            <div class="mt-2 text-muted" style="font-size: 0.75rem;">
+                <span class="text-info fw-bold">3 ta kafedra</span> bo‘yicha
+            </div>
+        </div>
+    </div>
+
+    <!-- 3. Jami guruhlar -->
+    <div class="col-sm-6 col-xl-3">
+        <div class="card stat-card bg-white p-3 h-100 border-start border-success border-4">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <span class="text-muted small fw-semibold d-block">Jami Guruhlar</span>
+                    <h3 class="fw-bold mb-0 text-dark">{{ total_groups }}</h3>
+                </div>
+                <div class="rounded-3 bg-success-subtle text-success p-3">
+                    <i class="bi bi-diagram-3-fill fs-4"></i>
+                </div>
+            </div>
+            <div class="mt-2 text-muted" style="font-size: 0.75rem;">
+                <span class="text-success fw-bold">DI, AT, BUX</span> yo‘nalishlari
+            </div>
+        </div>
+    </div>
+
+    <!-- 4. Bugungi tadbirlar -->
+    <div class="col-sm-6 col-xl-3">
+        <div class="card stat-card bg-white p-3 h-100 border-start border-warning border-4">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <span class="text-muted small fw-semibold d-block">Bugungi Tadbirlar</span>
+                    <h3 class="fw-bold mb-0 text-dark">{{ today_events }}</h3>
+                </div>
+                <div class="rounded-3 bg-warning-subtle text-warning p-3">
+                    <i class="bi bi-calendar-event-fill fs-4"></i>
+                </div>
+            </div>
+            <div class="mt-2 text-muted" style="font-size: 0.75rem;">
+                Faol e‘lonlar va rejalar
+            </div>
+        </div>
+    </div>
+
+    <!-- 5. Bugungi davomat foizi -->
+    <div class="col-sm-6 col-xl-3">
+        <div class="card stat-card bg-white p-3 h-100 border-start border-primary border-4">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <span class="text-muted small fw-semibold d-block">Bugungi Davomat</span>
+                    <h3 class="fw-bold mb-0 text-primary">{{ today_attendance_percent }}%</h3>
+                </div>
+                <div class="rounded-3 bg-primary-subtle text-primary p-3">
+                    <i class="bi bi-pie-chart-fill fs-4"></i>
+                </div>
+            </div>
+            <div class="mt-2 text-muted" style="font-size: 0.75rem;">
+                Umumiy texnikum ko‘rsatkichi
+            </div>
+        </div>
+    </div>
+
+    <!-- 6. Kelmaganlar (Sababsiz) -->
+    <div class="col-sm-6 col-xl-3">
+        <div class="card stat-card bg-white p-3 h-100 border-start border-danger border-4" onclick="openAttendanceModal(event, '', 'ABSENT')" style="cursor: pointer;" title="Sababsiz kelmaganlar ro‘yxatini ko‘rish">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <span class="text-muted small fw-semibold d-block">Kelmaganlar (Sababsiz)</span>
+                    <h3 class="fw-bold mb-0 text-danger">{{ today_absent }}</h3>
+                </div>
+                <div class="rounded-3 bg-danger-subtle text-danger p-3">
+                    <i class="bi bi-x-circle-fill fs-4"></i>
+                </div>
+            </div>
+            <div class="mt-2 text-danger small" style="font-size: 0.75rem;">
+                <i class="bi bi-cursor-fill me-1"></i> Bosing: Ro‘yxatni ko‘rish
+            </div>
+        </div>
+    </div>
+
+    <!-- 7. Kasallik sababli (Spravka bilan) -->
+    <div class="col-sm-6 col-xl-3">
+        <div class="card stat-card bg-white p-3 h-100 border-start border-info border-4" onclick="openAttendanceModal(event, '', 'SICK')" style="cursor: pointer;" title="Kasallik sababli kelmaganlar va spravkalarni ko‘rish">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <span class="text-muted small fw-semibold d-block">Kasallik (Sababli)</span>
+                    <h3 class="fw-bold mb-0 text-info">{{ today_sick }}</h3>
+                </div>
+                <div class="rounded-3 bg-info-subtle text-info p-3">
+                    <i class="bi bi-file-medical-fill fs-4"></i>
+                </div>
+            </div>
+            <div class="mt-2 text-info small" style="font-size: 0.75rem;">
+                <i class="bi bi-cursor-fill me-1"></i> Bosing: Spravkalarni ko‘rish
+            </div>
+        </div>
+    </div>
+
+    <!-- 8. Kechikkanlar -->
+    <div class="col-sm-6 col-xl-3">
+        <div class="card stat-card bg-white p-3 h-100 border-start border-warning border-4" onclick="openAttendanceModal(event, '', 'LATE')" style="cursor: pointer;" title="Kechikkanlar ro‘yxatini ko‘rish">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <span class="text-muted small fw-semibold d-block">Kechikkanlar</span>
+                    <h3 class="fw-bold mb-0 text-warning">{{ today_late }}</h3>
+                </div>
+                <div class="rounded-3 bg-warning-subtle text-warning p-3">
+                    <i class="bi bi-alarm-fill fs-4"></i>
+                </div>
+            </div>
+            <div class="mt-2 text-warning small" style="font-size: 0.75rem;">
+                <i class="bi bi-cursor-fill me-1"></i> Bosing: Ro‘yxatni ko‘rish
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- GURUHLAR VA MONITORING BO'LIMI -->
+<div class="d-flex justify-content-between align-items-center mb-3" id="monitoring">
+    <div>
+        <h5 class="fw-bold mb-0 text-dark">
+            <i class="bi bi-diagram-3 me-2 text-primary"></i> Guruhlar Monitoringi va Davomat Diagrammasi
+        </h5>
+        <small class="text-muted">Har bir guruh kartasini bosib, uning batafsil sahifasi va o‘quvchilar ro‘yxatiga o‘tishingiz mumkin</small>
+    </div>
+    <span class="badge bg-light text-secondary border px-3 py-2">Donut Chart.js markazida talabalar soni</span>
+</div>
+
+<div class="row g-4 mb-5">
+    {% for item in groups_monitoring %}
+    <div class="col-md-6 col-xl-4">
+        <a href="{% url 'core:admin_group_detail' item.group.id %}" class="text-decoration-none">
+            <div class="group-card p-4 h-100 position-relative">
+                <div class="d-flex justify-content-between align-items-start mb-3">
+                    <div>
+                        <span class="badge bg-primary px-3 py-1 mb-1">{{ item.group.name }}</span>
+                        <h6 class="fw-bold text-dark mb-0">{{ item.group.direction }}</h6>
+                        <small class="text-muted">Rahbar: {{ item.group.curator.user.get_full_name_uz|default:"Tayinlanmagan" }}</small>
+                    </div>
+                    <div class="text-end">
+                        <span class="badge bg-success-subtle text-success fs-6 fw-bold">{{ item.attendance_percent }}%</span>
+                        <small class="text-muted d-block" style="font-size: 0.7rem;">Davomat foizi</small>
+                    </div>
+                </div>
+
+                <!-- Donut Chart va markaziy soni -->
+                <div class="position-relative my-3" style="height: 170px;">
+                    <canvas class="group-attendance-chart" data-chart-data="{{ item.chart_data_json }}"></canvas>
+                    <div class="chart-center-text">
+                        <span class="fw-bold fs-3 text-dark d-block lh-1">{{ item.total }}</span>
+                        <small class="text-muted" style="font-size: 0.7rem;">O‘quvchi</small>
+                    </div>
+                </div>
+
+                <!-- Davomat toifalari (Bosing: talabalar ro'yxati va spravkasi ochiladi) -->
+                <div class="row g-2 text-center pt-2 border-top" style="font-size: 0.78rem;">
+                    <div class="col-3" onclick="openAttendanceModal(event, {{ item.group.id }}, 'PRESENT')" style="cursor: pointer;" title="Darsda qatnashayotganlarni ko‘rish">
+                        <div class="fw-bold text-success">{{ item.present }}</div>
+                        <div class="text-muted" style="font-size: 0.68rem;">Darsda <i class="bi bi-box-arrow-up-right" style="font-size: 0.6rem;"></i></div>
+                    </div>
+                    <div class="col-3" onclick="openAttendanceModal(event, {{ item.group.id }}, 'LATE')" style="cursor: pointer;" title="Kechikkanlarni ko‘rish">
+                        <div class="fw-bold text-warning">{{ item.late }}</div>
+                        <div class="text-muted" style="font-size: 0.68rem;">Kechikkan <i class="bi bi-box-arrow-up-right" style="font-size: 0.6rem;"></i></div>
+                    </div>
+                    <div class="col-3" onclick="openAttendanceModal(event, {{ item.group.id }}, 'SICK')" style="cursor: pointer;" title="Kasallik sababli kelmaganlar va spravkalar">
+                        <div class="fw-bold text-info">{{ item.sick }}</div>
+                        <div class="text-muted" style="font-size: 0.68rem;">Kasallik <i class="bi bi-box-arrow-up-right" style="font-size: 0.6rem;"></i></div>
+                    </div>
+                    <div class="col-3" onclick="openAttendanceModal(event, {{ item.group.id }}, 'ABSENT')" style="cursor: pointer;" title="Sababsiz kelmaganlarni ko‘rish">
+                        <div class="fw-bold text-danger">{{ item.absent }}</div>
+                        <div class="text-muted" style="font-size: 0.68rem;">Sababsiz <i class="bi bi-box-arrow-up-right" style="font-size: 0.6rem;"></i></div>
+                    </div>
+                </div>
+            </div>
+        </a>
+    </div>
+    {% endfor %}
+</div>
+{% endblock %}

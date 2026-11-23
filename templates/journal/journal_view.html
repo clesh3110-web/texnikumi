@@ -1,0 +1,179 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Elektron Jurnal — Guliston 1-son texnikumi{% endblock %}
+
+{% block content %}
+<div class="bg-primary-custom text-white py-3 shadow-sm mb-4">
+    <div class="container d-flex justify-content-between align-items-center">
+        <div class="d-flex align-items-center gap-3">
+            <a href="{% url 'accounts:dashboard_redirect' %}" class="btn btn-outline-light btn-sm">
+                <i class="bi bi-arrow-left"></i> Panelga qaytish
+            </a>
+            <h4 class="fw-bold mb-0"><i class="bi bi-journal-bookmark-fill me-2 text-info"></i> Elektron Jurnal va Baholash</h4>
+        </div>
+        <div>
+            <span class="badge bg-info text-dark">5 ballik baholash tizimi</span>
+        </div>
+    </div>
+</div>
+
+<div class="container py-2">
+    {% if messages %}
+        {% for m in messages %}
+            <div class="alert alert-{{ m.tags }} alert-dismissible fade show small" role="alert">
+                {{ m }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+        {% endfor %}
+    {% endif %}
+
+    <!-- FAN VA GURUH TANLASH -->
+    <div class="card border-0 shadow-sm rounded-4 p-3 bg-white mb-4">
+        <form method="get" class="row g-2 align-items-center">
+            <div class="col-md-9">
+                <label class="form-label small fw-semibold text-muted mb-1">Fan va Guruhni tanlang:</label>
+                <select name="assignment" class="form-select bg-light" onchange="this.form.submit()">
+                    <option value="">-- Guruh va fanni tanlang --</option>
+                    {% for a in assignments %}
+                        <option value="{{ a.id }}" {% if selected_assignment.id == a.id %}selected{% endif %}>
+                            {{ a.group.name }} | {{ a.subject.name }} ({{ a.teacher.user.get_full_name_uz }})
+                        </option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="col-md-3 d-flex align-items-end">
+                <button type="submit" class="btn btn-primary-custom w-100 mt-md-4">
+                    <i class="bi bi-funnel-fill me-1"></i> Jurnalni ochish
+                </button>
+            </div>
+        </form>
+    </div>
+
+    {% if selected_assignment %}
+    <!-- JURNAL JADVALI -->
+    <div class="card border-0 shadow-sm rounded-4 p-4 bg-white mb-4">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+            <div>
+                <h5 class="fw-bold mb-0 text-dark">{{ selected_assignment.group.name }} — {{ selected_assignment.subject.name }}</h5>
+                <small class="text-muted">O‘qituvchi: {{ selected_assignment.teacher.user.get_full_name_uz }} | O‘quvchilar soni: {{ students.count }} nafar</small>
+            </div>
+            <div>
+                <button type="button" class="btn btn-primary-custom btn-sm" data-bs-toggle="modal" data-bs-target="#gradeModal">
+                    <i class="bi bi-plus-circle me-1"></i> Baho kiritish
+                </button>
+            </div>
+        </div>
+
+        <div class="table-responsive">
+            <table class="table table-hover align-middle table-bordered small">
+                <thead class="table-light">
+                    <tr>
+                        <th style="width: 40px;">#</th>
+                        <th>O‘quvchi F.I.Sh</th>
+                        <th>Talaba ID</th>
+                        <th class="text-center" style="width: 100px;">Bugungi baho ({{ today|date:"d.m" }})</th>
+                        <th>Izoh / Turi</th>
+                        <th class="text-center" style="width: 80px;">Amal</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for st in students %}
+                    <tr>
+                        <td class="text-muted">{{ forloop.counter }}</td>
+                        <td class="fw-bold text-dark">{{ st.user.get_full_name_uz }}</td>
+                        <td><span class="badge bg-light text-secondary border">{{ st.student_id_number|default:"—" }}</span></td>
+                        <td class="text-center">
+                            <!-- Baho ko'rsatish -->
+                            <button class="btn btn-sm btn-outline-primary px-3 py-1 fw-bold" onclick="openGradeModal('{{ st.id }}', '{{ st.user.get_full_name_uz }}')">
+                                Baholash
+                            </button>
+                        </td>
+                        <td class="text-muted small">Joriy nazorat</td>
+                        <td class="text-center">
+                            <button class="btn btn-link btn-sm text-secondary p-0" onclick="openGradeModal('{{ st.id }}', '{{ st.user.get_full_name_uz }}')">
+                                <i class="bi bi-pencil-square fs-6"></i>
+                            </button>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="6" class="text-center text-muted py-4">Guruhda o‘quvchilar mavjud emas.</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+    {% else %}
+    <div class="alert alert-info border-0 shadow-sm rounded-4 p-4 text-center">
+        <i class="bi bi-info-circle fs-2 d-block mb-2 text-primary"></i>
+        Iltimos, yuqoridagi ro‘yxatdan guruh va fanni tanlang.
+    </div>
+    {% endif %}
+</div>
+
+<!-- BAHO QO'YISH MODAL OYNASI -->
+<div class="modal fade" id="gradeModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content rounded-4 border-0 shadow">
+            <form method="post">
+                {% csrf_token %}
+                <input type="hidden" name="student_id" id="modalStudentId">
+                <div class="modal-header bg-primary-custom text-white">
+                    <h5 class="modal-title fw-bold" id="modalStudentName">O‘quvchini baholash</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body p-4">
+                    <div class="mb-3">
+                        <label class="form-label small fw-semibold">Sana:</label>
+                        <input type="date" name="lesson_date" class="form-control" value="{{ today|date:'Y-m-d' }}" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label small fw-semibold">Baho (1 dan 5 gacha) *:</label>
+                        <select name="score" class="form-select form-select-lg fw-bold text-primary" required>
+                            <option value="5">5 — A'lo</option>
+                            <option value="4">4 — Yaxshi</option>
+                            <option value="3">3 — Qoniqarli</option>
+                            <option value="2">2 — Qoniqarsiz</option>
+                            <option value="1">1 — Juda past</option>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label small fw-semibold">Baho turi:</label>
+                        <select name="grade_type" class="form-select">
+                            <option value="CURRENT">Joriy baho</option>
+                            <option value="MIDTERM">Oraliq nazorat</option>
+                            <option value="FINAL">Yakuniy nazorat</option>
+                            <option value="HOMEWORK">Uy vazifasi</option>
+                            <option value="ACTIVITY">Darsdagi faollik</option>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label small fw-semibold">O‘qituvchi izohi:</label>
+                        <textarea name="comment" class="form-control" rows="2" placeholder="Izoh yoki topshiriq mavzusi..."></textarea>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label small fw-semibold text-danger">Tahrirlash sababi (Audit uchun):</label>
+                        <input type="text" name="audit_reason" class="form-control" placeholder="Agar mavjud bahoni o‘zgartirayotgan bo‘lsangiz, sababini yozing">
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-light" data-bs-dismiss="modal">Bekor qilish</button>
+                    <button type="submit" class="btn btn-primary-custom px-4">Saqlash</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    function openGradeModal(studentId, studentName) {
+        document.getElementById('modalStudentId').value = studentId;
+        document.getElementById('modalStudentName').innerText = studentName + " — Baholash";
+        new bootstrap.Modal(document.getElementById('gradeModal')).show();
+    }
+</script>
+{% endblock %}

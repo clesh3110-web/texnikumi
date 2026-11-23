@@ -1,0 +1,74 @@
+{% extends 'base.html' %}
+
+{% block title %}Yangi loyiha qo‘shish — Guliston 1-son texnikumi{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="card border-0 shadow-sm rounded-4 p-4">
+                <div class="d-flex justify-content-between align-items-center mb-4 pb-2 border-bottom">
+                    <h5 class="fw-bold mb-0 text-dark">
+                        <i class="bi bi-lightbulb-fill text-warning me-2"></i>Yangi Innovatsion Loyiha / Startap Taklifi
+                    </h5>
+                    <a href="{% url 'projects:projects_list' %}" class="btn btn-outline-secondary btn-sm rounded-pill">
+                        <i class="bi bi-x-lg me-1"></i> Bekor qilish
+                    </a>
+                </div>
+
+                <form method="post" enctype="multipart/form-data">
+                    {% csrf_token %}
+
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">Loyiha / Mahsulot nomi <span class="text-danger">*</span></label>
+                        <input type="text" name="title" class="form-control form-control-lg" placeholder="Masalan: Aqlli Issiqxona Avtomatizatsiyasi" required>
+                    </div>
+
+                    <div class="row g-3 mb-3">
+                        <div class="col-md-6">
+                            <label class="form-label fw-bold">Yo‘nalish <span class="text-danger">*</span></label>
+                            <select name="category" class="form-select" required>
+                                {% for code, label in categories %}
+                                <option value="{{ code }}">{{ label }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-bold">Ilmiy rahbar / Mentor (Ixtiyoriy)</label>
+                            <select name="mentor_id" class="form-select">
+                                <option value="">— Mentorni tanlang —</option>
+                                {% for m in mentors %}
+                                <option value="{{ m.id }}">{{ m.user.get_full_name_uz }} ({{ m.get_academic_degree_display }})</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">Loyiha tavsifi, muammo va yechim <span class="text-danger">*</span></label>
+                        <textarea name="description" class="form-control" rows="6" placeholder="Loyihaning mohiyati, texnik yechimi, qaysi muammoni hal qilishi va kutilayotgan natijalar haqida batafsil yozing..." required></textarea>
+                    </div>
+
+                    <div class="row g-3 mb-4">
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold">GitHub yoki Sayt havolasi</label>
+                            <input type="url" name="project_url" class="form-control" placeholder="https://github.com/...">
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold">Taqdimot fayli (PDF/PPTX)</label>
+                            <input type="file" name="presentation_file" class="form-control">
+                        </div>
+                    </div>
+
+                    <div class="d-flex justify-content-end gap-2">
+                        <a href="{% url 'projects:projects_list' %}" class="btn btn-light px-4">Ortga</a>
+                        <button type="submit" class="btn btn-primary px-4 fw-bold">
+                            <i class="bi bi-send-check-fill me-1"></i> Loyihani topshirish
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

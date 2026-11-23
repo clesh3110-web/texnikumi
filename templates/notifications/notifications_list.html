@@ -1,0 +1,66 @@
+{% extends 'base.html' %}
+
+{% block title %}Bildirishnomalar markazi — Guliston 1-son texnikumi{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="card border-0 shadow-sm rounded-4 overflow-hidden mb-4">
+                <div class="card-header bg-white py-3 border-0 d-flex justify-content-between align-items-center">
+                    <div class="d-flex align-items-center gap-2">
+                        <i class="bi bi-bell-fill fs-4 text-warning"></i>
+                        <div>
+                            <h5 class="fw-bold mb-0 text-dark">Bildirishnomalar markazi</h5>
+                            <small class="text-muted">Jami: {{ notifications.count }} ta {% if unread_count %}({{ unread_count }} ta o‘qilmagan){% endif %}</small>
+                        </div>
+                    </div>
+                    {% if unread_count %}
+                    <a href="{% url 'notifications:mark_all_read' %}" class="btn btn-outline-primary btn-sm rounded-pill fw-semibold">
+                        <i class="bi bi-check2-all me-1"></i> Barchasini o‘qilgan deb belgilash
+                    </a>
+                    {% endif %}
+                </div>
+
+                <div class="list-group list-group-flush">
+                    {% for n in notifications %}
+                    <a href="{% url 'notifications:mark_read' n.id %}" class="list-group-item list-group-item-action p-3 d-flex align-items-start gap-3 border-bottom {% if not n.is_read %}bg-light border-start border-4 border-primary{% endif %}">
+                        <div class="rounded-circle p-2 d-flex align-items-center justify-content-center mt-1
+                            {% if n.notification_type == 'GRADE' %}bg-success-subtle text-success
+                            {% elif n.notification_type == 'ATTENDANCE' %}bg-warning-subtle text-warning
+                            {% elif n.notification_type == 'ASSIGNMENT' %}bg-info-subtle text-info
+                            {% elif n.notification_type == 'MESSAGE' %}bg-primary-subtle text-primary
+                            {% else %}bg-secondary-subtle text-secondary{% endif %}"
+                            style="width: 40px; height: 40px;">
+                            {% if n.notification_type == 'GRADE' %}<i class="bi bi-award-fill"></i>
+                            {% elif n.notification_type == 'ATTENDANCE' %}<i class="bi bi-calendar-check-fill"></i>
+                            {% elif n.notification_type == 'ASSIGNMENT' %}<i class="bi bi-clipboard-check-fill"></i>
+                            {% elif n.notification_type == 'MESSAGE' %}<i class="bi bi-envelope-fill"></i>
+                            {% else %}<i class="bi bi-info-circle-fill"></i>{% endif %}
+                        </div>
+
+                        <div class="flex-grow-1">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <h6 class="fw-bold mb-1 text-dark">{{ n.title }}</h6>
+                                <small class="text-muted">{{ n.created_at|timesince }} avval</small>
+                            </div>
+                            <p class="text-muted small mb-0">{{ n.message }}</p>
+                            {% if n.link_url %}
+                            <small class="text-primary fw-semibold mt-1 d-inline-block">
+                                Sahifaga o‘tish <i class="bi bi-arrow-right"></i>
+                            </small>
+                            {% endif %}
+                        </div>
+                    </a>
+                    {% empty %}
+                    <div class="p-5 text-center text-muted">
+                        <i class="bi bi-bell-slash fs-1 d-block mb-2 text-muted"></i>
+                        Hozircha yangi bildirishnomalar yo‘q.
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
